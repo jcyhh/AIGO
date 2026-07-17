@@ -1,0 +1,65 @@
+@use '../mixins' as *;
+
+.container{
+    padding-top: 30px;
+    padding-right: 30px;
+    padding-left: 30px;
+}
+.tl{
+    text-align: left;
+}
+.tc{
+    text-align: center;
+}
+.tr{
+    text-align: right;
+}
+.bold{
+    font-weight: bold;
+}
+.rel{
+    position: relative;
+    z-index: 1;
+}
+.ani{
+    transition: all 0.3s;
+}
+.backdrop{
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+.word-break{
+    word-break: break-all;
+    word-wrap: break-word;
+    line-break: anywhere;
+}
+.word-nowrap{
+    text-wrap: nowrap;
+}
+.word-ellipsis-1{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.word-ellipsis-2{
+    display: -webkit-box !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical !important;
+}
+.word-ellipsis-3{
+    display: -webkit-box !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical !important;
+}
+.full-btn{
+    @include full-button(88px, 20px);
+}
+.auto-btn{
+    @include auto-button();
+}

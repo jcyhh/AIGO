@@ -1,0 +1,27 @@
+.app-header-bar{
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+
+    .app-header-bar-bg{
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--app-header-bg);
+    }
+
+    &--scroll-opacity{
+        .app-header-bar-bg{
+            opacity: 0;
+        }
+    }
+
+    .header{
+        width: 100%;
+        height: 100px;
+        padding: 0 30px;
+    }
+}

@@ -1,0 +1,53 @@
+.weight-page {
+    position: relative;
+    min-height: calc(100vh - 100px);
+    min-height: calc(100dvh - 100px);
+    overflow: hidden;
+    background-color: #001020;
+
+    &__bg {
+        position: absolute;
+        top: 28px;
+        left: 0;
+        width: 100%;
+        height: auto;
+    }
+
+    &__token-pill {
+        height: 60px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 6px 16px 6px 6px;
+    }
+
+    &__extract-button {
+        @include auto-button(60px, 999px, 80px);
+
+        border: 0;
+        cursor: pointer;
+        margin-right: auto;
+        margin-left: auto;
+    }
+
+    &__section-title-line {
+        width: 240px;
+        height: 2px;
+    }
+
+    &__section-title-line--left {
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.2) 100%);
+    }
+
+    &__section-title-line--right {
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
+    }
+
+    &__record-card {
+        min-height: 146px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        background: linear-gradient(135deg, #1B2837 0%, #0B1A29 100%);
+        padding: 30px;
+    }
+}

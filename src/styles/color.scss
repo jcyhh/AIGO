@@ -1,0 +1,43 @@
+:root {
+    --app-color: #3760F9;
+    --app-btn-color: #FFFFFF;
+    --app-btn-bg: linear-gradient(90deg, #3760F9 0%, #0090FF 100%);
+    --app-btn-disabled-color: rgba(255, 255, 255, 0.5);
+    --app-btn-disabled-bg: #1A2836;
+    --app-green: #34B926;
+    --app-red: #FF5454;
+    --app-blue: #00EAFF;
+    --app-yellow: #F5C245;
+    --app-progress-color: var(--app-color);
+    --app-progress-bg: rgba(255, 255, 255, 0.1);
+    --app-segmented-tabs-bg: rgba(255, 255, 255, 0.1);
+    --app-segmented-tabs-active-bg: var(--app-btn-bg);
+    --app-segmented-tabs-active-color: #FFFFFF;
+    --app-segmented-tabs-inactive-color: rgba(255, 255, 255, 0.5);
+    --app-popup-gradient-card-bg: linear-gradient(180deg, #002546 0%, #000202 100%);
+    --app-popup-gradient-card-border: linear-gradient(180deg, #0090FF 0%, #3760F9 100%);
+
+    --app-header-bg: rgba(0, 0, 0, 0.3);
+    --app-secondary-header-bg: #0E0E0E;
+    --app-card-bg: #0F243E;
+    --app-box-bg: #FFFFFF1A;
+}
+
+body{
+    background-color: #001020;
+    color: #FFFFFF;
+}
+
+input{
+    &::placeholder{
+        color: #FFFFFF80;
+    }
+}
+
+.app-color{ color: var(--app-color); }
+.white{ color: #FFFFFF; } 
+.black{ color: #000000; }
+.green{ color: var(--app-green); }
+.red{ color: var(--app-red); }
+.blue{ color: var(--app-blue); }
+.yellow{ color: var(--app-yellow); }

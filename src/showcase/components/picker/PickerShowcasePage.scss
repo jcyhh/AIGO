@@ -1,0 +1,32 @@
+.picker-showcase {
+    min-height: 100%;
+
+    &-option {
+        height: 80px;
+        line-height: normal;
+    }
+
+    &-token-icon {
+        border-radius: 50%;
+
+        &--default {
+            background-color: var(--app-color);
+        }
+
+        &--usdt {
+            background-color: #26A17B;
+        }
+
+        &--bnb {
+            background-color: #F3BA2F;
+        }
+
+        &--eth {
+            background-color: #627EEA;
+        }
+    }
+
+    &-option-name {
+        line-height: 1.2;
+    }
+}

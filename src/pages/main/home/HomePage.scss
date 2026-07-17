@@ -1,0 +1,159 @@
+.home-page {
+    position: relative;
+    min-height: 3000px;
+    overflow: hidden;
+    background-color: #001020;
+
+    &__bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: auto;
+    }
+
+    &__hero {
+        position: absolute;
+        top: 40px;
+        left: 46px;
+        width: 658px;
+        height: 658px;
+    }
+
+    &__content {
+        padding-top: 444px;
+    }
+
+    &__cooperation-card {
+        width: 100%;
+        height: 557px;
+        background-image: url("@/assets/home/card-bg.png");
+        background-size: 100% 100%;
+    }
+
+    &__card-title-light {
+        width: 170px;
+        height: 40px;
+    }
+
+    &__card-title-text {
+        color: #BDF0FF;
+    }
+
+    &__progress-bar {
+        --app-progress-color: linear-gradient(90deg, #3760F9 0%, #0090FF 100%);
+        height: 24px;
+    }
+
+    &__deposit-all {
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+    }
+
+    &__deposit-input {
+        display: block;
+        width: 100%;
+        height: 88px;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        outline: none;
+        background: rgba(255, 255, 255, 0.1);
+        color: #FFFFFF;
+
+        &::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+    }
+
+    &__deposit-submit {
+        @include full-button(80px, 40px);
+
+        border: 0;
+        cursor: pointer;
+    }
+
+    &__income-card {
+        width: 100%;
+        min-height: 381px;
+        background-image: url("@/assets/home/income-card.png");
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+        padding: 30px;
+    }
+
+    &__income-static {
+        min-height: 136px;
+        border-radius: 20px;
+        background-color: #FFFFFF;
+        padding: 0 20px;
+    }
+
+    &__income-dynamic {
+        min-height: 196px;
+        border-radius: 20px;
+        padding: 28px 0 0;
+    }
+
+    &__claim-button {
+        @include auto-button(56px, 28px, 30px);
+
+        border: 0;
+        cursor: pointer;
+    }
+
+    &__claim-button--primary,
+    &__order-claim--active {
+        background: var(--app-btn-bg);
+    }
+
+    &__claim-button--muted,
+    &__order-claim--disabled {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    &__section-title-line {
+        width: 240px;
+        height: 2px;
+    }
+
+    &__section-title-line--left {
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.2) 100%);
+    }
+
+    &__section-title-line--right {
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
+    }
+
+    &__order-card {
+        width: 100%;
+        min-height: 437px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        background: linear-gradient(135deg, #1B2837 0%, #0B1A29 100%);
+        padding: 30px;
+    }
+
+    &__order-progress {
+        width: 200px;
+    }
+
+    &__order-progress-bar {
+        --app-progress-color: linear-gradient(90deg, #3760F9 0%, #0090FF 100%);
+
+        height: 24px;
+    }
+
+    &__order-line {
+        width: 100%;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    &__order-claim {
+        @include auto-button(56px, 28px, 30px);
+
+        border: 0;
+        cursor: pointer;
+    }
+}

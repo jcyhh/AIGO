@@ -1,0 +1,66 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { readFile } from 'node:fs/promises'
+
+test('saving page builds the static piggy bank screen with the shared countdown timer', async () => {
+    const [page, styles, colors] = await Promise.all([
+        readFile('src/pages/main/saving/SavingPage.tsx', 'utf8'),
+        readFile('src/pages/main/saving/SavingPage.scss', 'utf8'),
+        readFile('src/styles/color.scss', 'utf8'),
+    ])
+
+    assert.match(page, /import \{ useState, type ChangeEvent \} from 'react'/)
+    assert.match(page, /import \{ Popup \} from '@\/components\/Popup'/)
+    assert.match(page, /import \{ CountdownTimer \} from '@\/components\/CountdownTimer'/)
+    assert.match(page, /import \{ APP_CONFIG \} from '@\/config'/)
+    assert.match(page, /import tokenIcon from '@\/assets\/common\/usdt\.png'/)
+    assert.match(page, /import bg from '@\/assets\/saving\/bg\.png'/)
+    assert.match(page, /import cardBg from '@\/assets\/saving\/card\.png'/)
+    assert.doesNotMatch(page, /SAVING_COUNTDOWN_UNITS/)
+    assert.doesNotMatch(page, /COUNTDOWN_UNIT/)
+    assert.match(page, /<section className="saving-page"/)
+    assert.match(page, /<img src=\{bg\} className="saving-page__bg"/)
+    assert.match(page, /<img src=\{cardBg\} className="saving-page__card-bg"/)
+    assert.match(page, /<img src=\{tokenIcon\} className="img-48 flex-none"/)
+    assert.match(page, /Token/)
+    assert.match(page, /126,567\.086748/)
+    assert.match(page, /总存入金额/)
+    assert.match(page, /存入/)
+    assert.match(page, /提取结束倒计时/)
+    assert.match(page, /<CountdownTimer[\s\S]*targetTime=\{SAVING_WITHDRAW_END_TIME\}[\s\S]*timeZone=\{APP_CONFIG\.timeZone\}/)
+    assert.doesNotMatch(page, /units=\{/)
+    assert.match(page, /提取/)
+    assert.doesNotMatch(page, /提现/)
+    assert.match(page, /type SavingAction = 'deposit' \| 'withdraw'/)
+    assert.match(page, /SAVING_POPUP_CONFIG/)
+    assert.match(page, /contentTheme="gradient-card"/)
+    assert.match(page, /closeOnOverlayClick=\{false\}/)
+    assert.match(page, /placeholder=\{popupConfig\.placeholder\}/)
+    assert.match(page, /value=\{amountValue\}/)
+    assert.match(page, /onChange=\{handleAmountChange\}/)
+    assert.match(page, /我的Token/)
+    assert.match(page, /可提Token/)
+    assert.match(page, />\s*全部\s*</)
+    assert.match(page, />\s*确认\s*</)
+    assert.doesNotMatch(page, /disabled/)
+    assert.doesNotMatch(page, /style=/)
+
+    assert.match(styles, /\.saving-page\s*\{/)
+    assert.match(styles, /background-color:\s*#001020/)
+    assert.match(styles, /min-height:\s*calc\(100vh - 100px\)/)
+    assert.match(styles, /min-height:\s*calc\(100dvh - 100px\)/)
+    assert.match(styles, /&__bg/)
+    assert.match(styles, /&__card/)
+    assert.match(styles, /&__card-bg/)
+    assert.match(styles, /&__deposit-button[\s\S]*@include auto-button\(60px,\s*999px,\s*60px\)/)
+    assert.match(styles, /&__withdraw-button[\s\S]*@include full-button\(88px,\s*999px\)/)
+    assert.match(styles, /&__amount-popup/)
+    assert.match(styles, /&__amount-input-wrap/)
+    assert.match(styles, /&__amount-input/)
+    assert.match(styles, /&__popup-confirm[\s\S]*@include full-button\(80px,\s*999px\)/)
+
+    assert.match(colors, /--app-btn-disabled-color:\s*rgba\(255,\s*255,\s*255,\s*0\.5\);/)
+    assert.match(colors, /--app-btn-disabled-bg:\s*#1A2836;/)
+    assert.match(colors, /--app-popup-gradient-card-bg:/)
+    assert.match(colors, /--app-popup-gradient-card-border:/)
+})

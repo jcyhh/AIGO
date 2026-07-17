@@ -1,0 +1,53 @@
+.app-tabbar{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+    background: #000000;
+    border-top: 1px solid rgba($color: #FFFFFF, $alpha: 0.2);
+    border-radius: 30px 30px 0 0;
+
+    &__bar{
+        height: 100px;
+    }
+}
+
+.app-layout--tabbar{
+    padding-bottom: calc(100px + env(safe-area-inset-bottom));
+}
+
+.app-sidebar-menu{
+    width: 610px;
+    background-color: var(--app-card-bg);
+    border-radius: 40px 0 0 40px;
+    padding: 60px 50px;
+}
+.app-sidebar-invite{
+    &__box{
+        height: 72px;
+        overflow: hidden;
+        background-color: #FFFFFF1A;
+        border: 1px solid #FFFFFF33;
+        border-radius: 10px;
+    }
+
+    &__value{
+        min-width: 0;
+        padding: 0 24px;
+    }
+
+    &__line{
+        width: 1px;
+        height: 32px;
+        background-color: #FFFFFF33;
+    }
+
+    &__copy{
+        width: 72px;
+        height: 100%;
+    }
+}
+.app-menu{
+    width: 100%;
+    @include calc-vh(520);
+}

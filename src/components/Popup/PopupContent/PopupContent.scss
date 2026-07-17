@@ -1,0 +1,41 @@
+.popup-content {
+    max-width: 100%;
+    max-height: 100%;
+
+    &--center {
+        width: 670px;
+        padding: 40px 30px;
+        border-radius: 30px;
+        background-color: var(--app-card-bg);
+    }
+
+    &--bottom {
+        width: 100%;
+        padding: 40px 30px;
+        border-radius: 30px;
+        background-color: var(--app-card-bg);
+    }
+
+    &--gradient-card {
+        width: 650px;
+        padding: 30px;
+        border-radius: 40px;
+
+        @include gradient-card(
+            40px,
+            var(--app-popup-gradient-card-bg),
+            var(--app-popup-gradient-card-border),
+            2px
+        );
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    &__title {
+        flex: 1;
+    }
+}

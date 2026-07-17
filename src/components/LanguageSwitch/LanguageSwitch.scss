@@ -1,0 +1,10 @@
+.language-switch {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    &__default {
+        display: block;
+        width: 52px;
+        height: 52px;
+    }
+}

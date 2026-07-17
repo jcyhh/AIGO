@@ -1,0 +1,61 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { readFile } from 'node:fs/promises'
+
+test('popup exposes the template base popup contract', async () => {
+    const [component, styles, entry, readme] = await Promise.all([
+        readFile('src/components/Popup/Popup.tsx', 'utf8'),
+        readFile('src/components/Popup/Popup.scss', 'utf8'),
+        readFile('src/components/Popup/index.ts', 'utf8'),
+        readFile('src/components/Popup/README.md', 'utf8'),
+    ])
+
+    assert.match(component, /show:\s*boolean/)
+    assert.doesNotMatch(component, /open:\s*boolean/)
+    assert.match(component, /type PopupPosition = 'center' \| 'right' \| 'left' \| 'bottom'/)
+    assert.match(component, /center:\s*\{\s*enter:\s*'zoomIn',\s*leave:\s*'zoomOut'/)
+    assert.match(component, /right:\s*\{\s*enter:\s*'slideInRight',\s*leave:\s*'slideOutRight'/)
+    assert.match(component, /left:\s*\{\s*enter:\s*'slideInLeft',\s*leave:\s*'slideOutLeft'/)
+    assert.match(component, /bottom:\s*\{\s*enter:\s*'slideInUp',\s*leave:\s*'slideOutDown'/)
+    assert.match(component, /closeOnOverlayClick = true/)
+    assert.match(component, /onAfterClose\?:\s*\(\) => void/)
+    assert.match(component, /contentTheme = 'default'/)
+    assert.match(component, /contentTheme\?:\s*PopupContentTheme/)
+    assert.match(component, /contentPreset = true/)
+    assert.match(component, /contentPreset\?:\s*boolean/)
+    assert.match(component, /title\?:\s*ReactNode/)
+    assert.match(component, /title=\{title\}/)
+    assert.match(component, /theme=\{contentTheme\}/)
+    assert.match(component, /backdrop = true/)
+    assert.match(component, /backdrop\s*\?\s*'popup__backdrop__overlay'\s*:\s*'popup__overlay'/)
+    assert.match(component, /const overlayAnimationClassName = isLeaving/)
+    assert.match(component, /getAnimateClassName\('fadeOut'\)/)
+    assert.match(component, /getAnimateClassName\('fadeIn'\)/)
+    assert.match(component, /'animate__animated',[\s\S]*overlayAnimationClassName/)
+    assert.match(component, /createPortal/)
+    assert.match(component, /document\.body\.style\.overflow = 'hidden'/)
+    assert.match(component, /onAnimationEnd=\{handleContentAnimationEnd\}/)
+    assert.match(component, /onAfterClose\?\.\(\)/)
+    assert.match(component, /return null/)
+    assert.match(styles, /\.popup\s*\{[\s\S]*width:\s*100vw;[\s\S]*width:\s*100dvw;[\s\S]*height:\s*100vh;[\s\S]*height:\s*100dvh;/)
+    assert.match(styles, /&__overlay,[\s\S]*&__backdrop__overlay\s*\{[\s\S]*width:\s*100%;[\s\S]*height:\s*100%;/)
+    assert.match(styles, /&__overlay,[\s\S]*&__backdrop__overlay\s*\{[\s\S]*--animate-duration:\s*0\.25s;/)
+    assert.doesNotMatch(styles, /&__overlay,[\s\S]*&__backdrop__overlay\s*\{[\s\S]*100vw/)
+    assert.match(styles, /&--center/)
+    assert.match(styles, /&--right/)
+    assert.match(styles, /&--left/)
+    assert.match(styles, /&--bottom/)
+    assert.match(styles, /&__backdrop__overlay/)
+    assert.match(entry, /export \{ Popup \} from '\.\/Popup\.tsx'/)
+    assert.match(readme, /show/)
+    assert.match(readme, /children/)
+    assert.match(readme, /animate\.css/)
+    assert.match(readme, /backdrop/)
+    assert.match(readme, /contentTheme/)
+    assert.match(readme, /gradient-card/)
+    assert.match(readme, /AI usage contract/)
+    assert.match(readme, /center` and `bottom` should use the preset content wrapper/)
+    assert.match(readme, /left` and `right` should be treated as custom side drawers/)
+    assert.match(readme, /Do not put business login, request calls, wallet logic, or page routing inside `Popup`/)
+    assert.match(readme, /src\/showcase\/components\/popup\/PopupShowcasePage\.tsx/)
+})

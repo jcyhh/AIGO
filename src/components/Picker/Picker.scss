@@ -1,0 +1,45 @@
+.picker {
+    width: 100vw;
+    width: 100dvw;
+    padding: 40px 40px calc(40px + env(safe-area-inset-bottom));
+    border-radius: 40px 40px 0 0;
+    background-color: var(--app-card-bg);
+
+    &__title {
+        flex: 1;
+    }
+
+    &__close {
+        flex: none;
+        padding: 0;
+        border: 0;
+        color: inherit;
+        background: transparent;
+    }
+
+    &__swiper {
+        width: 670px;
+        height: 500px;
+    }
+
+    &__option {
+        width: 670px;
+        height: 80px;
+        border-radius: 20px;
+        text-align: center;
+    }
+
+    .swiper-slide-active {
+        background-color: var(--app-box-bg);
+    }
+
+    &__swiper--empty-current {
+        .swiper-slide-active {
+            background-color: transparent;
+        }
+    }
+
+    &__confirm {
+        @include full-button();
+    }
+}

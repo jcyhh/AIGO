@@ -1,0 +1,101 @@
+.saving-page {
+    position: relative;
+    min-height: calc(100vh - 100px);
+    min-height: calc(100dvh - 100px);
+    overflow: hidden;
+    background-color: #001020;
+
+    &__bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: auto;
+    }
+
+    &__content {
+        padding: 560px 30px 60px;
+    }
+
+    &__card {
+        position: relative;
+        min-height: 628px;
+        overflow: hidden;
+        border-radius: 30px;
+    }
+
+    &__card-bg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    &__token-pill {
+        height: 60px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 6px 16px 6px 6px;
+    }
+
+    &__deposit-button {
+        @include auto-button(60px, 999px, 60px);
+
+        border: 0;
+        cursor: pointer;
+        margin-right: auto;
+        margin-left: auto;
+    }
+
+    &__countdown {
+        position: relative;
+    }
+
+    &__withdraw-button {
+        @include full-button(88px, 999px);
+
+        border: 0;
+        cursor: pointer;
+    }
+
+    &__amount-popup {
+        min-height: 494px;
+        box-sizing: border-box;
+    }
+
+    &__popup-title {
+        @include gradient-word(var(--app-btn-bg));
+    }
+
+    &__amount-input-wrap {
+        height: 88px;
+        padding: 0 20px;
+        border: 2px solid rgba(246, 238, 255, 0.2);
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    &__amount-input {
+        min-width: 0;
+        height: 100%;
+        border: 0;
+        outline: 0;
+        color: inherit;
+        background: transparent;
+    }
+
+    &__all-button {
+        padding: 0;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+    }
+
+    &__popup-confirm {
+        @include full-button(80px, 999px);
+
+        border: 0;
+        cursor: pointer;
+    }
+}

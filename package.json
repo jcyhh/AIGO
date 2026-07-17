@@ -1,0 +1,50 @@
+{
+    "name": "aigo",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "packageManager": "pnpm@10.28.2",
+    "scripts": {
+        "preinstall": "node scripts/ensure-pnpm.mjs",
+        "predev": "node scripts/ensure-pnpm.mjs",
+        "dev": "vite --host 0.0.0.0",
+        "prebuild": "node scripts/ensure-pnpm.mjs && pnpm verify",
+        "build": "tsc -b && vite build",
+        "prelint": "node scripts/ensure-pnpm.mjs",
+        "lint": "pnpm lint:code && pnpm stylelint && pnpm lint:tsx-styles",
+        "lint:code": "oxlint",
+        "lint:tsx-styles": "node scripts/lint/noInlineStyles.mjs",
+        "stylelint": "stylelint \"src/**/*.scss\"",
+        "pretest": "node scripts/ensure-pnpm.mjs",
+        "test": "node --test tests/*.test.mjs",
+        "verify": "pnpm lint && pnpm test",
+        "prepreview": "node scripts/ensure-pnpm.mjs",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "@metamask/detect-provider": "^2.0.0",
+        "animate.css": "^4.1.1",
+        "axios": "^1.18.1",
+        "i18next": "^26.3.6",
+        "react": "^19.2.7",
+        "react-dom": "^19.2.7",
+        "react-i18next": "^17.0.9",
+        "react-router": "^8.2.0",
+        "swiper": "^14.0.5",
+        "viem": "^2.55.1",
+        "zustand": "^5.0.14"
+    },
+    "devDependencies": {
+        "@types/node": "^24.13.2",
+        "@types/react": "^19.2.17",
+        "@types/react-dom": "^19.2.3",
+        "@vitejs/plugin-react": "^6.0.3",
+        "oxlint": "^1.73.0",
+        "postcss-px-to-viewport-8-plugin": "^1.2.5",
+        "postcss-scss": "^4.0.9",
+        "sass-embedded": "^1.100.0",
+        "stylelint": "^17.14.0",
+        "typescript": "~6.0.2",
+        "vite": "^8.1.1"
+    }
+}
