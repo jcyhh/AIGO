@@ -12,7 +12,12 @@ import {
     DAPP_MIN_GAS_BALANCE,
     shouldCheckDappGas,
     shouldEstimateDappGas,
+    translateDappErrorMessage,
 } from './config.ts'
+import {
+    logDappContractReadResult,
+    logDappContractWriteFailure,
+} from './contractDebug.ts'
 import { getDappWalletClient } from './provider.ts'
 import { getConnectedDappAddress } from './wallet.ts'
 import type {
@@ -27,15 +32,26 @@ export async function readDappContract<TResult = unknown, TAbi extends Abi = Abi
     abi,
     functionName,
     args = [],
+    debugContractName,
 }: DappContractReadParams<TAbi>): Promise<TResult> {
     const walletClient = getDappWalletClient()
 
-    return walletClient.readContract({
+    const result = await walletClient.readContract({
         address,
         abi,
         functionName,
         args,
-    } as any) as Promise<TResult>
+    } as any) as TResult
+
+    logDappContractReadResult({
+        contract: debugContractName ?? address,
+        address,
+        functionName,
+        args,
+        result,
+    })
+
+    return result
 }
 
 export async function estimateDappContractGas<TAbi extends Abi = Abi>({
@@ -64,15 +80,20 @@ export async function writeDappContract<TAbi extends Abi = Abi>({
     gas,
     gasPrice,
     value,
+    debugContractName,
 }: DappContractWriteParams<TAbi>): Promise<TransactionReceipt> {
-    await checkDappGasBalance()
-
-    const walletClient = getDappWalletClient()
-    const account = await getConnectedDappAddress()
-
-    useDappStore.getState().setDappLoading(true)
+    let account: Address | undefined
+    let isDappLoading = false
 
     try {
+        await checkDappGasBalance()
+
+        const walletClient = getDappWalletClient()
+        account = await getConnectedDappAddress()
+
+        useDappStore.getState().setDappLoading(true)
+        isDappLoading = true
+
         const hash = await walletClient.writeContract({
             address,
             abi,
@@ -86,14 +107,30 @@ export async function writeDappContract<TAbi extends Abi = Abi>({
         const receipt = await walletClient.waitForTransactionReceipt({ hash })
 
         if (receipt.status === 'reverted') {
-            throw new Error(DAPP_ERROR_MESSAGE.contractReverted)
+            throw new Error(translateDappErrorMessage(DAPP_ERROR_MESSAGE.contractReverted))
         }
 
         // TODO(feedback): Show a shared success message after the global feedback module is ready.
         // TODO(feedback): 全局反馈模块完成后，在这里展示统一成功提示。
         return receipt
+    } catch (error) {
+        logDappContractWriteFailure({
+            contract: debugContractName ?? address,
+            address,
+            account,
+            functionName,
+            args,
+            gas,
+            gasPrice,
+            value,
+            error,
+        })
+
+        throw error
     } finally {
-        useDappStore.getState().setDappLoading(false)
+        if (isDappLoading) {
+            useDappStore.getState().setDappLoading(false)
+        }
     }
 }
 
@@ -104,7 +141,25 @@ export async function writeDappContractWithGas<TAbi extends Abi = Abi>(
         return writeDappContract(params)
     }
 
-    const estimatedGas = await estimateDappContractGas(params)
+    let estimatedGas: bigint
+
+    try {
+        estimatedGas = await estimateDappContractGas(params)
+    } catch (error) {
+        logDappContractWriteFailure({
+            contract: params.debugContractName ?? params.address,
+            address: params.address,
+            functionName: params.functionName,
+            args: params.args ?? [],
+            gas: params.gas,
+            gasPrice: params.gasPrice,
+            value: params.value,
+            error,
+        })
+
+        throw error
+    }
+
     const gas = estimatedGas * DAPP_GAS_LIMIT_MULTIPLIER / 100n
 
     return writeDappContract({
@@ -124,7 +179,7 @@ export async function checkDappGasBalance(
     const balance = await walletClient.getBalance({ address })
 
     if (balance < minGasBalance) {
-        throw new Error(DAPP_ERROR_MESSAGE.gasBalanceInsufficient)
+        throw new Error(translateDappErrorMessage(DAPP_ERROR_MESSAGE.gasBalanceInsufficient))
     }
 
     return balance

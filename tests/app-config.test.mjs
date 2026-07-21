@@ -58,3 +58,21 @@ test('feature modules read shared project defaults from app config', () => {
     assert.equal(STORAGE_DEFAULT.language, APP_CONFIG.defaultLanguageCode)
     assert.equal(APP_CONFIG.timeZone, 'Asia/Shanghai')
 })
+
+test('project token constants define display symbols for Token and AIGO', async () => {
+    let tokenSource = ''
+    let indexSource = ''
+
+    try {
+        tokenSource = await readFile(new URL('../src/config/token.ts', import.meta.url), 'utf8')
+        indexSource = await readFile(new URL('../src/config/index.ts', import.meta.url), 'utf8')
+    } catch {
+        tokenSource = ''
+        indexSource = ''
+    }
+
+    assert.match(tokenSource, /export const PROJECT_TOKEN/)
+    assert.match(tokenSource, /usdt:\s*\{[\s\S]*symbol:\s*'Token'/)
+    assert.match(tokenSource, /platform:\s*\{[\s\S]*symbol:\s*'AIGO'/)
+    assert.match(indexSource, /from '\.\/token\.ts'/)
+})

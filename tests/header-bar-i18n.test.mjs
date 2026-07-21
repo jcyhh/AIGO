@@ -12,6 +12,11 @@ test('header bar only renders a masked wallet address after wallet login', async
     assert.match(component, /<LanguageSwitch \/>/)
     assert.match(component, /useDappStore/)
     assert.match(component, /useUserStore/)
+    assert.match(component, /const userLevelIcon = useUserStore\(\(state\) => state\.userProfile\?\.level\?\.icon\?\.trim\(\) \?\? ''\)/)
+    assert.match(
+        component,
+        /\{userLevelIcon \? \([\s\S]*<img[\s\S]*src=\{userLevelIcon\}[\s\S]*className="app-header-bar__level-icon img-52 mr-20"[\s\S]*alt=""[\s\S]*\/>[\s\S]*\) : null\}[\s\S]*<LanguageSwitch \/>/,
+    )
     assert.match(component, /maskWalletAddress/)
     assert.match(component, /className="auto-btn size-24 bold-6 ml-20"/)
     assert.match(
@@ -91,8 +96,10 @@ test('header bar supports scroll-driven background opacity only on the backgroun
         /<div ref=\{backgroundRef\} className="app-header-bar-bg backdrop" \/>/,
     )
     assert.doesNotMatch(component, /className="app-header-bar vw-100 backdrop"/)
+    assert.doesNotMatch(component, /style=/)
 
     assert.match(styles, /\.app-header-bar-bg\s*\{/)
+    assert.match(styles, /&__level-icon\s*\{[\s\S]*object-fit:\s*contain;/)
     assert.match(styles, /background-color: var\(--app-header-bg\);/)
     assert.match(
         styles,

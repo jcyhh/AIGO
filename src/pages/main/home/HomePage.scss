@@ -50,7 +50,8 @@
         cursor: pointer;
     }
 
-    &__deposit-input {
+    &__deposit-input,
+    &__invite-input {
         display: block;
         width: 100%;
         height: 88px;
@@ -94,6 +95,14 @@
         padding: 28px 0 0;
     }
 
+    &__income-detail {
+        display: block;
+        border: 0;
+        padding: 0;
+        background: transparent;
+        cursor: pointer;
+    }
+
     &__claim-button {
         @include auto-button(56px, 28px, 30px);
 
@@ -112,6 +121,22 @@
         background: rgba(255, 255, 255, 0.2);
     }
 
+    &__invite-popup {
+        min-height: 310px;
+        box-sizing: border-box;
+    }
+
+    &__invite-popup-title {
+        @include gradient-word(var(--app-btn-bg));
+    }
+
+    &__invite-confirm {
+        @include full-button(80px, 999px);
+
+        border: 0;
+        cursor: pointer;
+    }
+
     &__section-title-line {
         width: 240px;
         height: 2px;
@@ -125,13 +150,20 @@
         background: linear-gradient(90deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
     }
 
+    &__order-empty {
+        padding: 60px 0;
+    }
+
     &__order-card {
         width: 100%;
-        min-height: 437px;
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 20px;
         background: linear-gradient(135deg, #1B2837 0%, #0B1A29 100%);
         padding: 30px;
+    }
+
+    &__order-summary {
+        min-width: 0;
     }
 
     &__order-progress {
@@ -156,4 +188,5 @@
         border: 0;
         cursor: pointer;
     }
+
 }

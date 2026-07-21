@@ -13,7 +13,7 @@ It calls `formatAmount()` internally so amount display stays consistent across p
 <AmountText
   value={order.total_amount}
   className="orderAmount"
-  data-token="USDT"
+  data-token="Token"
 />
 ```
 

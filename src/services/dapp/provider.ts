@@ -9,6 +9,7 @@ import {
     DAPP_CURRENT_CHAIN,
     DAPP_ERROR_MESSAGE,
     DAPP_PROVIDER_DETECT_TIMEOUT,
+    translateDappErrorMessage,
 } from './config.ts'
 import {
     isDappProviderExpected,
@@ -85,7 +86,7 @@ export function getDappProvider(): DappEthereumProvider {
     )
 
     if (!isDappProvider(provider)) {
-        throw new Error(DAPP_ERROR_MESSAGE.providerUnavailable)
+        throw new Error(translateDappErrorMessage(DAPP_ERROR_MESSAGE.providerUnavailable))
     }
 
     cachedProvider = provider

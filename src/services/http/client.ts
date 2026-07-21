@@ -1,5 +1,6 @@
 import axios from 'axios'
 
+import { message } from '../../components/Message/message.ts'
 import { APP_CONFIG } from '../../config/index.ts'
 import { logout } from '../../features/auth/session.ts'
 import { getRequestLanguage } from '../../i18n/getRequestLanguage.ts'
@@ -59,8 +60,7 @@ httpClient.interceptors.response.use(
             logout()
         }
 
-        // TODO(http): Show request errors through the shared message module after it is ready.
-        // TODO(http): 全局消息系统完成后，在统一错误策略中展示请求错误。
+        message.warning(httpError.message)
         return Promise.reject(httpError)
     },
 )

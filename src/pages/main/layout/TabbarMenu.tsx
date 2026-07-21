@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router'
+import { useTranslation } from 'react-i18next'
 
 import { MAIN_PAGE_ITEMS } from '../config.ts'
 
@@ -11,6 +12,8 @@ const getMenuLinkClassName = ({ isActive }: { isActive: boolean }): string =>
         : TABBAR_LINK_CLASS_NAME
 
 export function TabbarMenu() {
+    const { t } = useTranslation()
+
     return (
         <nav>
             <div className="gap-100" />
@@ -30,7 +33,7 @@ export function TabbarMenu() {
                                         alt=""
                                     />
                                     <span className={isActive ? 'mt-4' : 'mt-4 opc-5'}>
-                                        {item.title}
+                                        {t(item.titleKey)}
                                     </span>
                                 </>
                             )}

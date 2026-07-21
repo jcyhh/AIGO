@@ -7,6 +7,7 @@ import { getWalletAddress } from '../storage/common.ts'
 import {
     DAPP_ERROR_MESSAGE,
     getErc20ApproveAmount,
+    translateDappErrorMessage,
 } from './config.ts'
 import {
     createDappContractActions,
@@ -97,10 +98,44 @@ export function getErc20Address(tokenAddress?: Address): Address {
     const address = tokenAddress ?? import.meta.env?.VITE_USDT as Address | undefined
 
     if (!address) {
-        throw new Error(DAPP_ERROR_MESSAGE.tokenAddressUnavailable)
+        throw new Error(translateDappErrorMessage(DAPP_ERROR_MESSAGE.tokenAddressUnavailable))
     }
 
     return address
+}
+
+function normalizeErc20Address(address?: string): string {
+    return address?.toLowerCase() ?? ''
+}
+
+export function getErc20DebugContractName(address: Address): string {
+    const normalizedAddress = normalizeErc20Address(address)
+
+    if (normalizedAddress === normalizeErc20Address(import.meta.env?.VITE_USDT)) {
+        return 'USDT'
+    }
+
+    if (normalizedAddress === normalizeErc20Address(import.meta.env?.VITE_AIGO_TOKEN)) {
+        return 'AIGO Token'
+    }
+
+    return 'ERC20'
+}
+
+function readErc20Contract<TResult>(
+    functionName: string,
+    args: readonly unknown[] = [],
+    tokenAddress?: Address,
+): Promise<TResult> {
+    const address = getErc20Address(tokenAddress)
+
+    return readDappContract<TResult>({
+        address,
+        abi: ERC20_ABI,
+        functionName,
+        args,
+        debugContractName: getErc20DebugContractName(address),
+    })
 }
 
 export async function getErc20OwnerAddress(owner?: Address): Promise<Address> {
@@ -112,47 +147,30 @@ export async function getErc20OwnerAddress(owner?: Address): Promise<Address> {
 }
 
 export async function readErc20Name(tokenAddress?: Address): Promise<string> {
-    return readDappContract<string>({
-        address: getErc20Address(tokenAddress),
-        abi: ERC20_ABI,
-        functionName: 'name',
-    })
+    return readErc20Contract<string>('name', [], tokenAddress)
 }
 
 export async function readErc20Symbol(tokenAddress?: Address): Promise<string> {
-    return readDappContract<string>({
-        address: getErc20Address(tokenAddress),
-        abi: ERC20_ABI,
-        functionName: 'symbol',
-    })
+    return readErc20Contract<string>('symbol', [], tokenAddress)
 }
 
 export async function readErc20Decimals(tokenAddress?: Address): Promise<number> {
-    return readDappContract<number>({
-        address: getErc20Address(tokenAddress),
-        abi: ERC20_ABI,
-        functionName: 'decimals',
-    })
+    return readErc20Contract<number>('decimals', [], tokenAddress)
 }
 
 export async function readErc20TotalSupply(tokenAddress?: Address): Promise<bigint> {
-    return readDappContract<bigint>({
-        address: getErc20Address(tokenAddress),
-        abi: ERC20_ABI,
-        functionName: 'totalSupply',
-    })
+    return readErc20Contract<bigint>('totalSupply', [], tokenAddress)
 }
 
 export async function readErc20Balance(
     tokenAddress?: Address,
     owner?: Address,
 ): Promise<bigint> {
-    return readDappContract<bigint>({
-        address: getErc20Address(tokenAddress),
-        abi: ERC20_ABI,
-        functionName: 'balanceOf',
-        args: [await getErc20OwnerAddress(owner)],
-    })
+    return readErc20Contract<bigint>(
+        'balanceOf',
+        [await getErc20OwnerAddress(owner)],
+        tokenAddress,
+    )
 }
 
 export async function readErc20Allowance(
@@ -160,12 +178,11 @@ export async function readErc20Allowance(
     tokenAddress?: Address,
     owner?: Address,
 ): Promise<bigint> {
-    return readDappContract<bigint>({
-        address: getErc20Address(tokenAddress),
-        abi: ERC20_ABI,
-        functionName: 'allowance',
-        args: [await getErc20OwnerAddress(owner), spender],
-    })
+    return readErc20Contract<bigint>(
+        'allowance',
+        [await getErc20OwnerAddress(owner), spender],
+        tokenAddress,
+    )
 }
 
 export async function checkErc20Balance(
@@ -176,7 +193,7 @@ export async function checkErc20Balance(
     const balance = await readErc20Balance(tokenAddress, owner)
 
     if (balance < amount) {
-        throw new Error(DAPP_ERROR_MESSAGE.erc20BalanceInsufficient)
+        throw new Error(translateDappErrorMessage(DAPP_ERROR_MESSAGE.erc20BalanceInsufficient))
     }
 }
 

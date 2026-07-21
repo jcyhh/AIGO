@@ -14,6 +14,5 @@ It renders `gap-100` blocks above and below by default, so it can naturally sepa
 import { Empty } from '@/components/Empty'
 
 <Empty />
-<Empty text="暂无记录" />
 <Empty showGap={false} />
 ```

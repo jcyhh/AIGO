@@ -21,9 +21,9 @@ export function EmptyShowcasePage() {
                 </div>
 
                 <div className="app-card mt-30">
-                    <div className="size-28 bold-6">自定义文案</div>
+                    <div className="size-28 bold-6">紧凑用法</div>
                     <div className="empty-showcase-box mt-30">
-                        <Empty text="暂无收益记录" showGap={false} />
+                        <Empty showGap={false} />
                     </div>
                 </div>
             </main>

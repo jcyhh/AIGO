@@ -1,0 +1,8 @@
+.infinite-scroll {
+    display: block;
+
+    &__sentinel {
+        min-height: 1px;
+        pointer-events: none;
+    }
+}

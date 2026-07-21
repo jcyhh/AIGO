@@ -9,10 +9,12 @@ import {
 } from '../src/services/dapp/config.ts'
 
 test('dapp gas check is controlled by the project setting', () => {
+    assert.equal(DAPP_CONFIG.enableGasCheck, false)
     assert.equal(shouldCheckDappGas(), DAPP_CONFIG.enableGasCheck)
 })
 
 test('dapp gas estimation follows the project setting and stays disabled in development', () => {
+    assert.equal(DAPP_CONFIG.enableGasEstimate, false)
     assert.equal(shouldEstimateDappGas(true), DAPP_CONFIG.enableGasEstimate)
     assert.equal(shouldEstimateDappGas(false), false)
 })

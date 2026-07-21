@@ -166,6 +166,24 @@ Place vendored third-party or generated source under `src/vendor` or `src/third-
 For example, use `className="flex items-center justify-center tc size-24"` instead of rewriting the same flex, alignment, text-align or font-size CSS.
 例如，使用 `className="flex items-center justify-center tc size-24"`，不要重复编写同等的 flex、对齐、文本居中或字号 CSS。
 
+## Contract write feedback
+## 合约写入反馈
+
+Every page or feature workflow that starts a contract write must render `ContractLoading` for the complete pending lifetime.
+所有发起写合约的页面或功能流程，必须在完整等待期间展示 `ContractLoading`。
+
+Set the pending state before the workflow begins, including gas checks, allowance reads, wallet confirmation and transaction receipt waits; clear it only after the workflow resolves or rejects.
+等待状态必须在流程开始前设置，并覆盖 gas 检查、授权额度读取、钱包确认和交易回执等待；仅在整个流程成功或失败后才清除。
+
+Sequential contract writes must share one pending state so `ContractLoading` stays visible from the first write until the final receipt, for example an ERC20 approval and order submission.
+连续写合约必须共用同一个等待状态，确保 `ContractLoading` 从第一笔写入持续到最后一个交易回执，例如 ERC20 授权后再下单。
+
+Disabling the action button or showing a local spinner may supplement the state, but may not replace `ContractLoading`.
+禁用操作按钮或展示局部 spinner 可以作为补充，但不得替代 `ContractLoading`。
+
+When a successful contract write is followed by a refresh of chain-indexed API data, await `waitForDappContractDataSync()` before refreshing. Its delay is controlled only by `DAPP_CONFIG.contractWriteRefreshDelayMs`; do not add page-local `setTimeout` calls.
+写合约成功后如需刷新依赖链上索引的 API 数据，必须先 await `waitForDappContractDataSync()` 再刷新。其延迟只能由 `DAPP_CONFIG.contractWriteRefreshDelayMs` 控制，页面中不得新增局部 `setTimeout`。
+
 ## Terminology
 ## 术语
 

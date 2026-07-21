@@ -13,12 +13,35 @@
         height: auto;
     }
 
-    &__token-pill {
-        height: 60px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.1);
-        padding: 6px 16px 6px 6px;
+    &__tabs {
+        position: relative;
+        z-index: 1;
+    }
+
+    &__tab {
+        position: relative;
+        width: 282px;
+        aspect-ratio: 282 / 78;
+        color: rgba(255, 255, 255, 0.8);
+        cursor: pointer;
+    }
+
+    &__tab-bg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: fill;
+        pointer-events: none;
+    }
+
+    &__tab-label {
+        position: relative;
+        z-index: 1;
+    }
+
+    &__tab--active {
+        color: #FFFFFF;
     }
 
     &__extract-button {
@@ -28,6 +51,46 @@
         cursor: pointer;
         margin-right: auto;
         margin-left: auto;
+    }
+
+    &__claim-popup {
+        min-height: 410px;
+        box-sizing: border-box;
+    }
+
+    &__claim-popup-title {
+        @include gradient-word(var(--app-btn-bg));
+    }
+
+    &__claim-input-wrap {
+        height: 88px;
+        padding: 0 20px;
+        border: 2px solid rgba(246, 238, 255, 0.2);
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    &__claim-input {
+        min-width: 0;
+        height: 100%;
+        border: 0;
+        outline: 0;
+        color: inherit;
+        background: transparent;
+    }
+
+    &__claim-all-button {
+        padding: 0;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+    }
+
+    &__claim-confirm {
+        @include full-button(80px, 999px);
+
+        border: 0;
+        cursor: pointer;
     }
 
     &__section-title-line {

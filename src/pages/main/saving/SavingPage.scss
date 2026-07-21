@@ -24,6 +24,10 @@
         border-radius: 30px;
     }
 
+    &__card-content {
+        min-height: 628px;
+    }
+
     &__card-bg {
         position: absolute;
         inset: 0;
@@ -57,11 +61,12 @@
 
         border: 0;
         cursor: pointer;
-    }
 
-    &__amount-popup {
-        min-height: 494px;
-        box-sizing: border-box;
+        &:disabled {
+            color: var(--app-btn-disabled-color);
+            background: var(--app-btn-disabled-bg);
+            cursor: not-allowed;
+        }
     }
 
     &__popup-title {

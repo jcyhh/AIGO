@@ -19,16 +19,19 @@ function createStorage(language = '') {
     }
 }
 
-test('enables all template languages with standard language codes', () => {
+test('enables the project language set with Japanese, Korean and Russian support', () => {
     assert.deepEqual(
         APP_LANGUAGES.map(({ code }) => code),
         [
-            'en', 'fr', 'ko', 'ja', 'ru', 'hi', 'ms',
-            'es', 'id', 'tr', 'vi', 'th', 'zh-Hant', 'zh-Hans',
+            'en', 'ja', 'ko', 'ru', 'zh-Hant', 'zh-Hans',
         ],
     )
     assert.equal(DEFAULT_LANGUAGE_CODE, 'zh-Hans')
     assert.equal(findAppLanguage('zh-Hans')?.code, 'zh-Hans')
+    assert.equal(findAppLanguage('ja')?.code, 'ja')
+    assert.equal(findAppLanguage('ko')?.code, 'ko')
+    assert.equal(findAppLanguage('ru')?.code, 'ru')
+    assert.equal(findAppLanguage('fr'), undefined)
     assert.equal(findAppLanguage('unsupported'), undefined)
 })
 
@@ -45,9 +48,12 @@ test('all enabled common locales translate the splash welcome template', async (
     )
 })
 
-test('returns the configured backend language and safely falls back', () => {
+test('returns the configured project backend language and safely falls back', () => {
+    globalThis.window = { localStorage: createStorage('ja') }
+    assert.equal(getRequestLanguage(), 'ja')
+
     globalThis.window = { localStorage: createStorage('ms') }
-    assert.equal(getRequestLanguage(), 'ms')
+    assert.equal(getRequestLanguage(), 'zh-Hans')
 
     globalThis.window = { localStorage: createStorage('unsupported') }
     assert.equal(getRequestLanguage(), 'zh-Hans')

@@ -1,13 +1,22 @@
+import { translate } from '../../i18n/index.ts'
+
 export const AUTH_API_PATH = {
     passwordLogin: '/api/auth/login',
-    dappLogin: '/api/auth/address_login',
+    dappLogin: '/api/auth/login',
 } as const
 
 export const AUTH_ERROR_MESSAGE = {
-    tokenUnavailable: '登录凭证无效',
-    dappUnavailable: '没有钱包环境',
-    dappSessionChanged: '钱包账户或网络已切换',
+    tokenUnavailable: 'auth.tokenUnavailable',
+    dappUnavailable: 'auth.dappUnavailable',
+    dappSessionChanged: 'auth.dappSessionChanged',
 } as const
+
+export type AuthErrorMessage =
+    (typeof AUTH_ERROR_MESSAGE)[keyof typeof AUTH_ERROR_MESSAGE]
+
+export function translateAuthErrorMessage(message: AuthErrorMessage): string {
+    return translate(message)
+}
 
 export function shouldUseTemporaryDappLogin(): boolean {
     return Boolean(import.meta.env?.DEV)

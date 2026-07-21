@@ -55,6 +55,13 @@ export {
     writeDappContract,
     writeDappContractWithGas,
 } from './contract.ts'
+export { waitForDappContractDataSync } from './contractRefresh.ts'
+export {
+    DAPP_CONTRACT_READ_LOG_LABEL,
+    DAPP_CONTRACT_WRITE_FAILED_LOG_LABEL,
+    logDappContractReadResult,
+    logDappContractWriteFailure,
+} from './contractDebug.ts'
 export {
     formatDappAmountUnits,
     parseDappAmountUnits,
@@ -65,6 +72,7 @@ export {
     createErc20Actions,
     ensureErc20Allowance,
     getErc20Address,
+    getErc20DebugContractName,
     getErc20OwnerAddress,
     readErc20Allowance,
     readErc20Balance,
@@ -100,6 +108,10 @@ export type {
     DappWalletListenerOptions,
     DappWalletConnection,
 } from './types.ts'
+export type {
+    DappContractReadDebugInfo,
+    DappContractWriteFailureDebugInfo,
+} from './contractDebug.ts'
 export type {
     DappAmountUnitOptions,
     DappAmountUnitValue,

@@ -2,6 +2,7 @@ import {
     type FormEvent,
     useState,
 } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { loginWithPassword } from '@/features/auth/password.ts'
 import { getLoginAccount } from '@/services/storage/index.ts'
@@ -9,6 +10,7 @@ import { getLoginAccount } from '@/services/storage/index.ts'
 import './LoginPage.scss'
 
 export function LoginPage() {
+    const { t } = useTranslation()
     const [email, setEmail] = useState(() => getLoginAccount())
     const [password, setPassword] = useState('')
     const [errorMessage, setErrorMessage] = useState('')
@@ -19,7 +21,7 @@ export function LoginPage() {
         setErrorMessage('')
 
         if (!email.trim() || !password) {
-            setErrorMessage('请输入邮箱账号和密码')
+            setErrorMessage(t('请输入邮箱账号和密码'))
             return
         }
 
@@ -28,7 +30,7 @@ export function LoginPage() {
         try {
             await loginWithPassword({ email, password })
         } catch (error) {
-            setErrorMessage(error instanceof Error ? error.message : '登录失败')
+            setErrorMessage(error instanceof Error ? error.message : t('登录失败'))
         } finally {
             setSubmitting(false)
         }
@@ -40,20 +42,20 @@ export function LoginPage() {
                 <input
                     type="email"
                     value={email}
-                    placeholder="邮箱账号"
+                    placeholder={t('邮箱账号')}
                     autoComplete="email"
                     onChange={(event) => setEmail(event.target.value)}
                 />
                 <input
                     type="password"
                     value={password}
-                    placeholder="密码"
+                    placeholder={t('密码')}
                     autoComplete="current-password"
                     onChange={(event) => setPassword(event.target.value)}
                 />
                 {errorMessage ? <div role="alert">{errorMessage}</div> : null}
                 <button type="submit" disabled={submitting}>
-                    {submitting ? '登录中...' : '登录'}
+                    {submitting ? t('登录中...') : t('登录')}
                 </button>
             </form>
         </main>

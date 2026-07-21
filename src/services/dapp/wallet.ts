@@ -6,6 +6,7 @@ import {
     DAPP_ERROR_MESSAGE,
     DAPP_PROVIDER_STATUS,
     type DappSignMessage,
+    translateDappErrorMessage,
 } from './config.ts'
 import {
     ensureDappChain,
@@ -30,7 +31,7 @@ import type {
 } from './types.ts'
 
 function normalizeAddress(address: Address | undefined): Address {
-    if (!address) throw new Error(DAPP_ERROR_MESSAGE.walletAddressUnavailable)
+    if (!address) throw new Error(translateDappErrorMessage(DAPP_ERROR_MESSAGE.walletAddressUnavailable))
     return address
 }
 

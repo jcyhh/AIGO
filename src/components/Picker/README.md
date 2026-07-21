@@ -54,7 +54,6 @@ It follows the old Vue `CusPicker` behavior: open a bottom popup, slide or tap t
 | `options` | `PickerOption[]` | required | Option list. |
 | `title` | `ReactNode` | `'请选择'` | Header title. |
 | `confirmText` | `ReactNode` | `'确定'` | Confirm button text. |
-| `emptyText` | `ReactNode` | `undefined` | Text passed to `Empty` when `options` is empty. |
 | `value` | `number` | `undefined` | Controlled selected index. |
 | `defaultIndex` | `number` | `0` | Initial selected index in uncontrolled mode. |
 | `allowEmpty` | `boolean` | `false` | Allows an empty selected index of `-1`. |
@@ -72,7 +71,6 @@ It follows the old Vue `CusPicker` behavior: open a bottom popup, slide or tap t
 | `options` | `PickerOption[]` | 必传 | 选项列表。 |
 | `title` | `ReactNode` | `'请选择'` | 顶部标题。 |
 | `confirmText` | `ReactNode` | `'确定'` | 确认按钮文案。 |
-| `emptyText` | `ReactNode` | `undefined` | `options` 为空时传给 `Empty` 的文案。 |
 | `value` | `number` | `undefined` | 受控模式下的选中下标。 |
 | `defaultIndex` | `number` | `0` | 非受控模式下的初始选中下标。 |
 | `allowEmpty` | `boolean` | `false` | 是否允许选中下标为 `-1` 的空选择状态。 |
@@ -93,7 +91,7 @@ import { useState } from 'react'
 import { Picker, type PickerOption } from '@/components/Picker'
 
 const coinOptions: PickerOption[] = [
-    { label: 'USDT', value: 'USDT' },
+    { label: 'Token', value: 'Token' },
     { label: 'BNB', value: 'BNB' },
     { label: 'ETH', value: 'ETH' },
 ]
@@ -157,7 +155,6 @@ When `options` is empty, `Picker` renders the shared `Empty` component and disab
 <Picker
     show={showPicker}
     options={[]}
-    emptyText="暂无可选择数据"
     onClose={() => setShowPicker(false)}
 />
 ```

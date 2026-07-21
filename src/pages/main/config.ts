@@ -16,7 +16,7 @@ export type MainPageItemPath =
 
 export type MainPageItem = {
     path: MainPageItemPath
-    title: string
+    titleKey: string
     icon: string
     activeIcon: string
 }
@@ -24,25 +24,25 @@ export type MainPageItem = {
 export const MAIN_PAGE_ITEMS: readonly MainPageItem[] = [
     {
         path: ROUTE_PATH.home,
-        title: '首页',
+        titleKey: 'nav.home',
         icon: homeIconUrl,
         activeIcon: homeActiveIconUrl,
     },
     {
         path: ROUTE_PATH.swap,
-        title: '闪兑',
+        titleKey: 'nav.swap',
         icon: swapIconUrl,
         activeIcon: swapActiveIconUrl,
     },
     {
         path: ROUTE_PATH.weight,
-        title: '权重',
+        titleKey: 'nav.weight',
         icon: weightIconUrl,
         activeIcon: weightActiveIconUrl,
     },
     {
         path: ROUTE_PATH.saving,
-        title: '存钱罐',
+        titleKey: 'nav.saving',
         icon: savingIconUrl,
         activeIcon: savingActiveIconUrl,
     },

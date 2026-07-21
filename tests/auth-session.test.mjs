@@ -95,25 +95,28 @@ test('logout in a Flutter host with an injected wallet clears the cached wallet 
 })
 
 test('auth API keeps the old password and DApp login contracts in one feature module', async () => {
-    const [apiSource, configSource, typesSource] = await Promise.all([
+    const [apiSource, configSource, typesSource, dappSource] = await Promise.all([
         readFile(new URL('../src/features/auth/api.ts', import.meta.url), 'utf8'),
         readFile(new URL('../src/features/auth/config.ts', import.meta.url), 'utf8'),
         readFile(new URL('../src/features/auth/types.ts', import.meta.url), 'utf8'),
+        readFile(new URL('../src/features/auth/dapp.ts', import.meta.url), 'utf8'),
     ])
 
     assert.match(configSource, /passwordLogin:\s*'\/api\/auth\/login'/)
-    assert.match(configSource, /dappLogin:\s*'\/api\/auth\/address_login'/)
+    assert.match(configSource, /dappLogin:\s*'\/api\/auth\/login'/)
     assert.match(apiSource, /AUTH_API_PATH\.passwordLogin/)
     assert.match(apiSource, /AUTH_API_PATH\.dappLogin/)
     assert.match(typesSource, /email/)
     assert.match(typesSource, /password/)
-    assert.match(apiSource, /referralCode/)
     assert.match(apiSource, /address/)
     assert.match(apiSource, /signature/)
     assert.match(apiSource, /timestamp/)
+    assert.doesNotMatch(apiSource, /ref:\s*params\.referralCode/)
+    assert.doesNotMatch(typesSource, /referralCode/)
+    assert.doesNotMatch(dappSource, /getReferralCode/)
     assert.match(
         apiSource,
-        /data:\s*\{\s*ref:\s*params\.referralCode,\s*address:\s*params\.address,\s*signature:\s*params\.signature,\s*timestamp:\s*params\.timestamp,\s*\}/,
+        /data:\s*\{\s*address:\s*params\.address,\s*signature:\s*params\.signature,\s*timestamp:\s*params\.timestamp,\s*\}/,
     )
     assert.match(typesSource, /interface AuthTokenResponse/)
 })
@@ -138,6 +141,35 @@ test('splash delegates login branching to the auth startup module', async () => 
     assert.match(startupSource, /loginWithDapp/)
     assert.match(startupSource, /ROUTE_PATH\.login/)
     assert.match(startupSource, /ROUTE_PATH\.home/)
+})
+
+test('app startup resumes an authenticated DApp session before page modules consume global contract state', async () => {
+    const [appSource, routerSource, startupSource] = await Promise.all([
+        readFile(new URL('../src/app/App.tsx', import.meta.url), 'utf8'),
+        readFile(new URL('../src/router/AppRouter.tsx', import.meta.url), 'utf8'),
+        readFile(new URL('../src/features/auth/startup.ts', import.meta.url), 'utf8'),
+    ])
+
+    assert.match(appSource, /AuthenticatedDappSessionBootstrap/)
+    assert.match(appSource, /initializeAuthenticatedDappSession/)
+    assert.match(appSource, /void initializeAuthenticatedDappSession\(\)/)
+    assert.match(appSource, /<AppRouter \/>/)
+    assert.doesNotMatch(routerSource, /initializeAuthenticatedDappSession/)
+    assert.match(startupSource, /export async function initializeAuthenticatedDappSession/)
+    assert.match(startupSource, /const token = getToken\(\)/)
+    assert.match(startupSource, /if \(!token\) return AUTH_STARTUP_RESULT\.completed/)
+    assert.match(startupSource, /async function loadAuthenticatedUserProfile\(\)/)
+    assert.match(startupSource, /getCurrentUser/)
+    assert.match(
+        startupSource,
+        /if \(!token\) return AUTH_STARTUP_RESULT\.completed[\s\S]*await loadAuthenticatedUserProfile\(\)[\s\S]*if \(APP_CONFIG\.loginMode === APP_LOGIN_MODE\.account\)/,
+    )
+    assert.match(startupSource, /if \(APP_CONFIG\.loginMode === APP_LOGIN_MODE\.account\)/)
+    assert.match(startupSource, /detectStartupDappProvider\(\)/)
+    assert.match(startupSource, /await resumeStoredDappSession\(\)/)
+    assert.match(startupSource, /async function resumeStoredDappSession/)
+    assert.match(startupSource, /resumeStoredDappSessionPromise/)
+    assert.match(startupSource, /await resumeDappAuthSession\(\)/)
 })
 
 test('DApp login invalidates stale signature requests after an account or chain change', async () => {

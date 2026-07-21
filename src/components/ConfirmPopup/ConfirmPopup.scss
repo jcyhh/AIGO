@@ -1,0 +1,23 @@
+.confirm-popup {
+    min-height: 294px;
+    box-sizing: border-box;
+
+    &__title {
+        @include gradient-word(var(--app-btn-bg));
+    }
+
+    &__body {
+        min-height: 150px;
+    }
+
+    &__confirm {
+        @include full-button(80px, 999px);
+
+        border: 0;
+        cursor: pointer;
+
+        &:disabled {
+            cursor: not-allowed;
+        }
+    }
+}

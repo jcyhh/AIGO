@@ -1,4 +1,5 @@
 import { request } from '../http/request.ts'
+import { translate } from '../../i18n/index.ts'
 import {
     HTTP_UPLOAD_CONFIG,
 } from '../http/config.ts'
@@ -37,7 +38,7 @@ export function selectImageFile(
             cleanup()
 
             if (file) resolve(file)
-            else reject(new Error('未选择文件'))
+            else reject(new Error(translate('未选择文件')))
         }
 
         const handleChange = () => finish(input.files?.[0])

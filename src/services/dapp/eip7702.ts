@@ -6,6 +6,7 @@ import type {
 import {
     DAPP_CURRENT_CHAIN,
     DAPP_ERROR_MESSAGE,
+    translateDappErrorMessage,
 } from './config.ts'
 import { getDappProvider } from './provider.ts'
 import { getConnectedDappAddress } from './wallet.ts'
@@ -98,7 +99,7 @@ export async function sendDappEip7702Calls(
         const supported = await detectDappEip7702Support(options)
 
         if (!supported) {
-            throw new Error(DAPP_ERROR_MESSAGE.eip7702Unavailable)
+            throw new Error(translateDappErrorMessage(DAPP_ERROR_MESSAGE.eip7702Unavailable))
         }
     }
 

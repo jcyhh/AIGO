@@ -6,3 +6,16 @@ This directory stores business capability modules that group API calls, types an
 
 Create a new feature when a capability has its own API contract or page-facing data model.
 当某个能力拥有独立接口契约或面向页面的数据模型时，就创建新的 feature。
+
+## Current API modules
+## 当前接口模块
+
+- `auth`: wallet login and auth lifecycle.
+- `user`: current user, statistics and referral list.
+- `asset`: asset logs.
+- `claim`: claim signature creation.
+- `order`: order list and order reward logs.
+- `swap`: swap logs.
+- `notice`: notices, pop notice and read status.
+- `banner`: banner list.
+- `remoteConfig`: backend reserved config.

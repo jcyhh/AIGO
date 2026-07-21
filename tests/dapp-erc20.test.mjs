@@ -53,3 +53,13 @@ test('erc20 allowance helper approves the configured amount when allowance is in
     assert.match(source, /getErc20ApproveAmount\(amount\)/)
     assert.match(source, /writeWithGas\('approve'/)
 })
+
+test('erc20 reads carry semantic contract debug names for known project tokens', () => {
+    const source = readFileSync('src/services/dapp/erc20.ts', 'utf8')
+
+    assert.match(source, /getErc20DebugContractName/)
+    assert.match(source, /VITE_USDT/)
+    assert.match(source, /VITE_AIGO_TOKEN/)
+    assert.match(source, /debugContractName: getErc20DebugContractName\(address\)/)
+    assert.match(source, /readErc20Contract/)
+})

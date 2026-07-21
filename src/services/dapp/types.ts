@@ -38,6 +38,7 @@ export interface DappContractReadParams<TAbi extends Abi = Abi> {
     abi: TAbi
     functionName: string
     args?: readonly unknown[]
+    debugContractName?: string
 }
 
 export interface DappContractWriteOptions {

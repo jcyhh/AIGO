@@ -58,6 +58,15 @@ Gas 余额检查由 `DAPP_CONFIG.enableGasCheck` 控制。
 Contract writes call the shared gas checker before sending transactions.
 写合约方法在发送交易前都会先调用统一 Gas 检查。
 
+Pages and feature actions must display `ContractLoading` for the full contract write workflow, from the initial gas or allowance work through the final transaction receipt.
+页面和功能 action 必须在完整写合约流程中展示 `ContractLoading`，从初始 gas 或授权额度处理持续到最后一个交易回执。
+
+For sequential writes such as ERC20 approval and order submission, use one shared pending state so the loading overlay does not disappear between approval and order.
+对于 ERC20 授权后下单这类连续写入，应使用同一个等待状态，避免 loading 遮罩在授权与下单之间消失。
+
+Refresh chain-indexed API data through `waitForDappContractDataSync()` after a confirmed write. Its wait duration comes from `DAPP_CONFIG.contractWriteRefreshDelayMs`, which defaults to three seconds.
+写合约确认后，通过 `waitForDappContractDataSync()` 再刷新依赖链上索引的 API 数据。等待时长由 `DAPP_CONFIG.contractWriteRefreshDelayMs` 控制，默认三秒。
+
 Frontend gas estimation and gas submission is controlled by `DAPP_CONFIG.enableGasEstimate`.
 前端是否估算并提交 gas 由 `DAPP_CONFIG.enableGasEstimate` 控制。
 

@@ -31,6 +31,7 @@ test('language switch exposes a reusable children wrapper module', async () => {
     assert.match(component, /<Picker\s+show=\{showLanguagePopup\}/)
     assert.match(component, /options=\{languagePickerOptions\}/)
     assert.match(component, /value=\{pendingLanguageIndex\}/)
+    assert.doesNotMatch(component, /emptyText=/)
     assert.match(component, /onChange=\{handleLanguagePickerChange\}/)
     assert.match(component, /onConfirm=\{handleLanguagePickerConfirm\}/)
     assert.match(component, /onAfterClose=\{handleLanguagePopupAfterClose\}/)

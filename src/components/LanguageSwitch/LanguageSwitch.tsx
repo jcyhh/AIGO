@@ -133,7 +133,6 @@ function LanguageSwitchContent({
                 value={pendingLanguageIndex}
                 title={t('切换语言')}
                 confirmText={t('确认')}
-                emptyText={t('暂无数据')}
                 onClose={closeLanguageSwitch}
                 onChange={handleLanguagePickerChange}
                 onConfirm={handleLanguagePickerConfirm}

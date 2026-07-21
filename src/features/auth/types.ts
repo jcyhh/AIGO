@@ -8,7 +8,6 @@ export interface PasswordLoginParams {
 }
 
 export interface DappLoginParams {
-    referralCode: string
     address: string
     signature: string
     timestamp: number

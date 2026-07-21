@@ -309,6 +309,87 @@
 - 当前项目处理：AIGO 暂不批量抽所有候选，优先考虑先抽首页订单 tab 为公共 `SegmentedTabs`，分页组件作为接口阶段前置能力。
 - 验证结果：本次先记录模板反馈，后续每抽一个公共组件都应补 README、showcase 和契约测试。
 
+### TRF-031：项目合约封装应独立于通用 DApp 能力目录
+
+- 状态：计划回灌
+- 实战场景：DApp 项目接入合约 ABI 后，需要把页面会调用的合约读写方法封装成稳定的业务方法，同时继续复用模板已有的钱包连接、链配置、合约写入 loading、gas 检查和金额单位转换等通用能力。
+- 发现的问题：如果把项目专属 ABI 和业务方法直接塞进 `src/services/dapp`，会污染模板通用 DApp 模块，让 `dapp` 同时承担“钱包基础设施”和“某个业务合约”的职责。后续复制到其他项目时，项目 ABI、地址、方法名和业务 README 都会变成模板噪音。
+- 建议方案：模板保留 `src/services/dapp` 作为通用 Web3 基础能力目录；每个具体业务项目把 ABI、合约地址配置和页面语义方法统一放在 `src/services/contracts/`。推荐结构为：`config.ts` 统一读取合约 env 和必填地址校验；`<contractName>.ts` 按合约或业务语义封装 ABI、底层 read/write 方法和页面友好的 action 工厂；`index.ts` 统一导出；`README.md` 记录合约范围、env key、缺失 ABI 项和封装边界。
+- 目录约束：合约文件名优先使用合约业务语义，例如 `aigoProject.ts`、`laxProject.ts`；ABI 常量、底层方法和页面 action 均从同一个文件导出。项目特有地址进入 `.env.development` / `.env.production` / `.env.example` 和 `vite-env.d.ts`，其中生产 env 仍遵循项目规则，不因合约接入而写入不该进入生产配置的开发地址。
+- 当前项目处理：AIGO 已新增 `src/services/contracts/config.ts`、`aigoProject.ts`、`laxProject.ts`、`index.ts` 和 `README.md`。`AIGOProjectV1` 与 `LAXProject` 的 ABI 和页面会用的方法已在该目录封装；`src/services/dapp` 继续只承载通用钱包与链交互能力。
+- 验证结果：新增 `tests/project-contracts.test.mjs` 约束该目录结构、env key、ABI 方法覆盖和 README 记录。完整 `pnpm lint`、`pnpm test` 和 `pnpm build` 均已通过。
+
+### TRF-032：已登录 DApp 项目应在 App 启动层恢复钱包与全局链上状态
+
+- 状态：计划回灌
+- 实战场景：DApp H5 用户可能已经登录并直接刷新或打开 `/h5/home`、`/h5/swap` 等业务页。此时如果钱包、合约实例和全局链上状态只在开屏页登录流程或侧边栏打开时初始化，页面会先拿到空状态，侧边栏邀请链接、全局用户链上身份等状态也会不稳定。
+- 发现的问题：`isReferralBound` 这类全局状态不属于侧边栏组件职责。侧边栏只是展示邀请链接，不能因为它打开了才触发合约读取；否则直接刷新首页、先进入其他一级页面或未来新增公共状态时都会重复踩坑。
+- 建议方案：模板 DApp 登录模式应提供 App 启动层 bootstrap：应用挂载后检查本地登录态，若处于 DApp 登录模式且检测到钱包环境，则恢复钱包连接、校验缓存地址、启动钱包监听，并立即读取需要全局缓存的链上状态。页面、Header、Sidebar 等组件只消费 store，不主动承担全局初始化。未登录时不强行初始化业务合约，继续由接口 401 或开屏登录流程处理登录。
+- 边界约束：App 层只初始化通用钱包会话和已确认的全局状态，不应把某个页面的列表、详情或临时弹窗数据提前加载。合约读取仍通过项目 `services/contracts` wrapper，并保留 `[contract:read]` 诊断日志，方便接口阶段核对链上数据来源。
+- 当前项目处理：AIGO 已将 `initializeAuthenticatedDappSession()` 接入 `src/app/App.tsx`，并复用 `resumeDappAuthSession()` 在钱包初始化后同步 `isReferralBound` 到用户 store。`SidebarMenu` 只读取 `isReferralBound` 与钱包地址生成邀请链接，不再承担合约读取职责。
+- 验证结果：新增认证启动与邀请状态契约测试，约束 App 层 bootstrap、启动恢复、侧边栏只消费 store，以及合约读取诊断日志。
+
+### TRF-033：全局反馈应提供方法级 Message/Toast 模块
+
+- 状态：计划回灌
+- 实战场景：请求非 200、复制成功或失败、合约写入结果、全局校验失败等反馈不一定发生在页面组件内部，服务层、指令式工具和业务 action 都需要能直接触发 toast。
+- 发现的问题：如果 toast 只能通过页面挂载组件或 Provider 使用，HTTP 拦截器这类全局基础设施会很难接入；如果继续沿用旧项目 `innerHTML` 拼接 DOM 的方式，又会绕过 React 组件边界，并带来字符串插入风险和样式维护成本。
+- 建议方案：模板提供方法级 `Message` 模块，对外暴露 `message()`、`message.success()`、`message.fail()`、`message.warning()`、`message.info()` 和 `message.close()`。内部用单例 root 动态添加到 `document.body`，新消息清理旧计时器并复用同一生命周期，视觉仍由 React 组件和 SCSS 维护。服务模块应在无 `document` 环境下安全 no-op，便于 Node 测试和 SSR 边界。
+- 当前项目处理：AIGO 已新增 `src/components/Message`，并在 HTTP 响应错误拦截器里对标准化后的 `HttpError.message` 调用 `message.warning()`。全局样式入口统一加载 Message SCSS，服务层不直接引入 SCSS，避免 Node 测试导入 HTTP client 时触发样式扩展解析。
+- 验证结果：新增 `tests/message.test.mjs` 约束方法级 API、单例动态挂载/销毁、无 `innerHTML`、全局样式注册和 HTTP 非 200 message 接入。
+
+### TRF-034：移动端分页应优先提供触底加载组件
+
+- 状态：计划回灌
+- 实战场景：AIGO 多个页面列表接口不返回 `total` 或总页数，只能根据本次返回条数是否达到 `page_size` 判断是否还有下一页。传统页码式分页组件在 H5 页面里使用频率较低，触底自动下一页更符合当前项目。
+- 建议方案：模板先沉淀轻量 `InfiniteScroll` 组件，只负责监听底部哨兵并在 `loading=false`、`hasMore=true` 时触发 `onLoadMore`；页面或业务 hook 继续负责请求接口、维护页码、拼接列表和判断 `hasMore`。组件不得接收接口地址、列表字段名或请求参数，避免把业务分页协议写死进公共 UI。
+- 当前项目处理：首页协作订单列表已接入 `InfiniteScroll`。进行中订单只请求第一页且不继续加载；已完成订单按 `page_no`、`page_size` 请求，并在触底时追加下一页。
+
+### TRF-035：合约写入等待必须覆盖完整交易流程
+
+- 状态：已回灌
+- 实战场景：DApp 页面执行入金、提取、兑换等合约操作时，用户需要先在钱包中确认交易，再等待链上回执；部分流程还会连续执行 ERC20 授权和业务合约写入。
+- 发现的问题：只给按钮增加禁用态或在单次 `writeContract` 等待时临时展示 loading，无法覆盖 gas 检查、授权额度读取和连续交易之间的间隙。用户会误以为流程结束，重复点击或关闭业务弹窗。
+- 建议方案：所有发起写合约的页面和 feature action 都使用共享 `ContractLoading`。等待状态在流程开始前开启，覆盖 gas 检查、授权读取、钱包确认及每笔交易回执；连续写入共用一个状态，直至最后一笔交易成功或失败后才关闭。按钮禁用仅作补充，不能替代全屏阻塞遮罩。若后续刷新依赖链上索引的 API 数据，必须通过 `waitForDappContractDataSync()` 等待 `DAPP_CONFIG.contractWriteRefreshDelayMs` 后再刷新，不能在页面散落定时器。
+- 当前项目处理：首页入金将 `homeDepositSubmitting` 贯穿 USDT 授权与绑定下单的整个流程，并接入 `ContractLoading`；订单和 USDT 余额刷新会先等待统一的 `waitForDappContractDataSync()`。`AGENTS.md` 和 `src/services/dapp/README.md` 已将该行为定义为后续写合约功能的强制规范。
+- 验证结果：新增文档契约测试，约束协作规则、DApp 接入说明和本反馈条目必须同时保留该规范。
+
+### TRF-036：接口阶段页面余额必须绑定真实业务来源
+
+- 状态：计划回灌
+- 实战场景：静态页面开发时常用设计稿金额占位，接口阶段如果只接列表或按钮动作，摘要区余额容易继续显示假数据。用户会把“权重金额”“可用余额”等关键数值当成真实账户状态。
+- 发现的问题：权重页摘要金额仍保留静态 `126,567.086748`，但当前业务确认该余额应来自用户信息接口 `/api/users/my` 的 `balance_xo` 字段。
+- 建议方案：模板在接口接入阶段应要求每个页面对照设计稿中的余额、收益、额度、进度等关键数字，逐项标注真实来源：用户信息、业务列表汇总、链上合约读取或远程配置。页面不得保留静态金额；真实数据未返回前使用统一占位，返回后通过共享 formatter 渲染。
+- 当前项目处理：AIGO 权重页已在挂载时调用 `getCurrentUser()`，读取 `balance_xo` 并通过 `formatAmount()` 展示；接口失败或未返回前显示 `--`。
+- 验证结果：更新 `tests/weight-page.test.mjs`，约束权重页必须从用户信息接口读取余额、格式化 `balance_xo`，并禁止静态金额回归。
+
+### TRF-037：通用 Empty 空态文案应统一默认值
+
+- 状态：计划回灌
+- 实战场景：列表、选择器、分页流水、订单等多个场景都会出现无数据状态。接口阶段继续让每个调用方传入“暂无订单”“暂无流水”“暂无可选择数据”等细分文案，会让空态表达变得零散，并增加页面接入成本。
+- 发现的问题：`Empty` 和 `Picker` 曾开放自定义空态文案参数，业务页面自然会逐个定制。当前项目确认无数据状态统一展示“暂无数据”即可，不需要按场景细分。
+- 建议方案：模板通用 `Empty` 组件直接渲染 i18n 默认文案 `暂无数据`，不再提供文案参数；`Picker` 等二次封装组件也只复用默认 `Empty`，不透传业务文案。页面只决定是否显示空态、是否保留默认上下间距和额外 class。
+- 当前项目处理：AIGO 已移除 `Empty.text` 与 `Picker.emptyText`，首页订单、权重资产列表、语言切换和 Picker showcase 均改为默认空态。
+- 验证结果：更新 Empty、Picker、首页、权重页和语言切换契约测试，约束源码不再传入自定义空态文案，并保留默认 `暂无数据` 展示。
+
+### TRF-038：二级业务页应与一级布局解耦
+
+- 状态：计划回灌
+- 实战场景：首页收益卡片中的“查看领取明细”需要进入领取明细页，但该页面不是底部菜单或侧边栏中的一级页面。
+- 发现的问题：如果把二级页直接挂在 `MainLayout` 下，页面会同时出现一级页面 Header 和二级页返回 Header；如果把二级页塞进 `MAIN_PAGE_ITEMS`，又会污染一级菜单配置。
+- 建议方案：模板应支持“鉴权内、主布局外”的二级路由结构。一级页面继续由 `MainLayout` 和 `MAIN_PAGE_ITEMS` 管理；二级业务页独立使用 `SecondaryHeader`，路由仍受登录鉴权保护。
+- 当前项目处理：AIGO 新增 `/home/reward-detail` 领取明细页，首页入口通过 `useAppNavigate()` 跳转；页面复用 `SecondaryHeader`、`SegmentedTabs`、`InfiniteScroll` 和默认 `Empty`，提供“静态收益 / 动态收益”两个筛选项，并通过 `/api/orders/reward_logs` 按 `type` 分页读取数据。
+- 验证结果：新增领取明细页契约测试，并更新首页入口与路由配置测试，约束二级路由不进入一级菜单。
+
+### TRF-039：合约 ABI 方法名不能直接决定前台资产动作
+
+- 状态：计划回灌
+- 实战场景：同一个业务页可能同时展示 XO、权重等多个资产字段，合约 ABI 中也可能同时存在 `claim`、`claimQuota` 等相近方法。接口阶段如果按方法名猜测业务动作，很容易把“余额展示”和“可提取资产”混在一起。
+- 发现的问题：权重 tab 曾按 XO 的模式补了提取弹窗和 `dividend_token` 签名提取，但当前业务确认权重没有提取入口；同时 XO 提取的链上写入应使用最新 ABI 的 `LAXProject.claimQuota(...)`，不是旧的 `claim(...)`。
+- 建议方案：页面资产配置应显式标注 `supportsClaim`、流水支持和接口 `ccy`，不要仅因为 ABI 里存在方法就开放 UI 动作。对需要后端签名的提取流程，前台 README 应写清“接口签名参数”和“最终写链方法”的对应关系。
+- 当前项目处理：AIGO 权重页保留 XO/权重 tab；切到权重时只展示用户信息接口的 `dividend_token` 余额，不展示提取按钮和流水；XO 提取继续先请求 `/api/claims`，但写链改为 `LAXProject.claimQuota(...)`。
+- 验证结果：更新 `tests/weight-page.test.mjs`，约束权重 tab 不暴露提取入口，XO 提取封装不再导入或调用 `writeLaxProjectClaim`，只调用 `writeLaxProjectClaimQuota`。
+
 ## 新反馈模板
 
 ### TRF-XXX：标题

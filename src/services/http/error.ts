@@ -1,5 +1,6 @@
 import axios from 'axios'
 
+import { translate } from '../../i18n/index.ts'
 import { HTTP_ERROR_MESSAGE } from './config.ts'
 
 interface HttpErrorOptions {
@@ -47,7 +48,7 @@ export function toHttpError(error: unknown): HttpError {
     if (axios.isAxiosError(error)) {
         const data: unknown = error.response?.data
         return new HttpError(
-            getResponseMessage(data) || error.message || HTTP_ERROR_MESSAGE.requestFailed,
+            getResponseMessage(data) || error.message || translate(HTTP_ERROR_MESSAGE.requestFailed),
             {
                 status: error.response?.status,
                 code: error.code,
@@ -61,5 +62,5 @@ export function toHttpError(error: unknown): HttpError {
         return new HttpError(error.message, { cause: error })
     }
 
-    return new HttpError(HTTP_ERROR_MESSAGE.unknown, { cause: error })
+    return new HttpError(translate(HTTP_ERROR_MESSAGE.unknown), { cause: error })
 }

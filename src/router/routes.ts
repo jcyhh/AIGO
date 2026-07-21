@@ -5,6 +5,7 @@ export const ROUTE_PATH = {
     referral: '/ref/:ref',
     login: '/login',
     home: `/${APP_HOME_ROUTE_NAME}` as const,
+    homeRewardDetail: `/${APP_HOME_ROUTE_NAME}/reward-detail` as const,
     swap: '/swap',
     weight: '/weight',
     saving: '/saving',

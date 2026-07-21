@@ -17,10 +17,10 @@
 }
 
 .app-sidebar-menu{
-    width: 610px;
+    width: 604px;
     background-color: var(--app-card-bg);
     border-radius: 40px 0 0 40px;
-    padding: 60px 50px;
+    padding: 50px 40px;
 }
 .app-sidebar-invite{
     &__box{
@@ -50,4 +50,22 @@
 .app-menu{
     width: 100%;
     @include calc-vh(520);
+
+    &__grid{
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        row-gap: 28px;
+    }
+
+    &__item{
+        min-width: 0;
+        height: 114px;
+        color: #657B98;
+        text-decoration: none;
+    }
+
+    &__external--disabled{
+        cursor: default;
+    }
+
 }

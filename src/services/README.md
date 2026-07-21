@@ -9,3 +9,6 @@ Keep side effects here instead of scattering them across page components.
 
 Wallet and on-chain interaction helpers live in `dapp`.
 钱包和链上交互能力放在 `dapp` 模块中。
+
+Project-specific contract wrappers live in `contracts`.
+项目专属合约封装放在 `contracts` 模块中。

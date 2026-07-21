@@ -25,7 +25,7 @@ const BASIC_OPTION_LIST: PickerOption[] = [
 ]
 
 const TOKEN_OPTION_LIST: PickerOption[] = [
-    { label: 'USDT', value: 'USDT', name: 'Tether USD', tone: 'usdt' },
+    { label: 'Token', value: 'Token', name: 'Token', tone: 'usdt' },
     { label: 'BNB', value: 'BNB', name: 'BNB Smart Chain', tone: 'bnb' },
     { label: 'ETH', value: 'ETH', name: 'Ethereum', tone: 'eth' },
 ]
@@ -151,7 +151,6 @@ export function PickerShowcasePage() {
                 title={activeDemo.title}
                 options={activeOptions}
                 value={activeIndex}
-                emptyText="暂无可选择数据"
                 onClose={handleClose}
                 onConfirm={handleConfirm}
                 renderOption={isCustomDemo ? renderTokenOption : undefined}

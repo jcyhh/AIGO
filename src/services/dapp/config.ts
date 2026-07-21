@@ -5,6 +5,8 @@ import {
 } from 'viem'
 import { bsc } from 'viem/chains'
 
+import { translate } from '../../i18n/index.ts'
+
 export type DappEnv = Partial<Record<string, string>>
 
 export const DAPP_DEFAULT_AMOUNT_DECIMALS = 18
@@ -69,15 +71,19 @@ export const DAPP_CONFIG = {
 
     // Whether contract writes check the native token balance first.
     // 写合约前是否先检查原生代币余额。
-    enableGasCheck: true,
+    enableGasCheck: false,
 
     // Whether production contract writes estimate and submit gas values.
     // 生产环境写合约时是否估算并提交 gas 参数。
-    enableGasEstimate: true,
+    enableGasEstimate: false,
 
     // Whether insufficient ERC20 allowance is approved with the maximum amount.
     // ERC20 授权不足时是否授权最大额度。
     enableErc20MaxApprove: true,
+
+    // Delay refreshes after a confirmed contract write so indexed backend data can catch up.
+    // 写合约确认后刷新数据前的等待时间，给后端索引链上交易留出同步时间。
+    contractWriteRefreshDelayMs: 3000,
 
     // Decimals used to convert DApp display amounts and on-chain integer units.
     // DApp 展示金额和链上整数单位互转使用的小数位。
@@ -123,15 +129,22 @@ export function getDappAmountDecimals(): number {
 export const DAPP_AMOUNT_DECIMALS = getDappAmountDecimals()
 
 export const DAPP_ERROR_MESSAGE = {
-    providerUnavailable: '没有钱包环境',
-    walletAddressUnavailable: '未获取到钱包地址',
-    gasBalanceInsufficient: 'Gas费用不足',
-    contractReverted: '交易执行失败',
-    tokenAddressUnavailable: '未配置 Token 合约地址',
-    eip7702Unavailable: '当前钱包暂不支持7702批量调用',
-    erc20BalanceInsufficient: '余额不足',
-    invalidAmount: '金额格式错误',
+    providerUnavailable: 'dapp.providerUnavailable',
+    walletAddressUnavailable: 'dapp.walletAddressUnavailable',
+    gasBalanceInsufficient: 'dapp.gasBalanceInsufficient',
+    contractReverted: 'dapp.contractReverted',
+    tokenAddressUnavailable: 'dapp.tokenAddressUnavailable',
+    eip7702Unavailable: 'dapp.eip7702Unavailable',
+    erc20BalanceInsufficient: 'dapp.erc20BalanceInsufficient',
+    invalidAmount: 'dapp.invalidAmount',
 } as const
+
+export type DappErrorMessage =
+    (typeof DAPP_ERROR_MESSAGE)[keyof typeof DAPP_ERROR_MESSAGE]
+
+export function translateDappErrorMessage(message: DappErrorMessage): string {
+    return translate(message)
+}
 
 export type DappSignMessage =
     | 'Login'

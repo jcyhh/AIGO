@@ -3,6 +3,7 @@ import {
     useRef,
     useState,
 } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
     useNavigate,
     useParams,
@@ -36,6 +37,7 @@ function waitForSplashAnimation(): Promise<void> {
 }
 
 export function SplashPage() {
+    const { t } = useTranslation()
     const { ref } = useParams<SplashRouteParams>()
     const navigate = useNavigate()
     const hasStartedRef = useRef(false)
@@ -86,8 +88,8 @@ export function SplashPage() {
             <div className="splash-page__tips vw-100 flex-center gap-10 size-20 tc opc-6 ani-delay-3 animate__animated animate__slideInUp">
                 <span>
                     {walletRequired
-                        ? '请使用钱包环境打开！'
-                        : `Welcome to ${APP_CONFIG.name}`}
+                        ? t('请使用钱包环境打开！')
+                        : t('欢迎来到{{name}}', { name: APP_CONFIG.name })}
                 </span>
 
                 {loading ? (

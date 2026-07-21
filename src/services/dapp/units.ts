@@ -7,6 +7,7 @@ import {
     DAPP_AMOUNT_DECIMALS,
     DAPP_ERROR_MESSAGE,
     DAPP_MAX_AMOUNT_DECIMALS,
+    translateDappErrorMessage,
 } from './config.ts'
 
 export type DappAmountUnitValue = string | number | bigint
@@ -25,7 +26,7 @@ function getDappAmountUnitDecimals(
         || decimals < 0
         || decimals > DAPP_MAX_AMOUNT_DECIMALS
     ) {
-        throw new Error(DAPP_ERROR_MESSAGE.invalidAmount)
+        throw new Error(translateDappErrorMessage(DAPP_ERROR_MESSAGE.invalidAmount))
     }
 
     return decimals
@@ -33,11 +34,11 @@ function getDappAmountUnitDecimals(
 
 function normalizeDappAmountValue(value: DappAmountUnitValue): string {
     if (typeof value === 'number' && !Number.isFinite(value)) {
-        throw new Error(DAPP_ERROR_MESSAGE.invalidAmount)
+        throw new Error(translateDappErrorMessage(DAPP_ERROR_MESSAGE.invalidAmount))
     }
 
     const text = String(value).trim()
-    if (!text) throw new Error(DAPP_ERROR_MESSAGE.invalidAmount)
+    if (!text) throw new Error(translateDappErrorMessage(DAPP_ERROR_MESSAGE.invalidAmount))
 
     return text
 }
@@ -46,11 +47,11 @@ function normalizeDappRawUnitValue(value: DappAmountUnitValue): bigint {
     if (typeof value === 'bigint') return value
 
     if (typeof value === 'number' && !Number.isSafeInteger(value)) {
-        throw new Error(DAPP_ERROR_MESSAGE.invalidAmount)
+        throw new Error(translateDappErrorMessage(DAPP_ERROR_MESSAGE.invalidAmount))
     }
 
     const text = String(value).trim()
-    if (!/^-?\d+$/.test(text)) throw new Error(DAPP_ERROR_MESSAGE.invalidAmount)
+    if (!/^-?\d+$/.test(text)) throw new Error(translateDappErrorMessage(DAPP_ERROR_MESSAGE.invalidAmount))
 
     return BigInt(text)
 }

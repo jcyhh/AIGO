@@ -2,48 +2,90 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 
-test('saving page builds the static piggy bank screen with the shared countdown timer', async () => {
-    const [page, styles, colors] = await Promise.all([
+test('saving page connects piggy bank reads and contract write workflows', async () => {
+    const [page, helper, styles, colors] = await Promise.all([
         readFile('src/pages/main/saving/SavingPage.tsx', 'utf8'),
+        readFile('src/pages/main/saving/saving.ts', 'utf8'),
         readFile('src/pages/main/saving/SavingPage.scss', 'utf8'),
         readFile('src/styles/color.scss', 'utf8'),
     ])
 
-    assert.match(page, /import \{ useState, type ChangeEvent \} from 'react'/)
+    assert.match(page, /import \{[\s\S]*useEffect,[\s\S]*useState,[\s\S]*type ChangeEvent,[\s\S]*\} from 'react'/)
+    assert.match(page, /import \{ useTranslation \} from 'react-i18next'/)
+    assert.match(page, /import type \{ Address \} from 'viem'/)
+    assert.match(page, /import \{ ContractLoading \} from '@\/components\/ContractLoading'/)
+    assert.match(page, /import \{ message \} from '@\/components\/Message'/)
     assert.match(page, /import \{ Popup \} from '@\/components\/Popup'/)
     assert.match(page, /import \{ CountdownTimer \} from '@\/components\/CountdownTimer'/)
-    assert.match(page, /import \{ APP_CONFIG \} from '@\/config'/)
-    assert.match(page, /import tokenIcon from '@\/assets\/common\/usdt\.png'/)
+    assert.match(page, /import \{[\s\S]*APP_CONFIG,[\s\S]*PROJECT_TOKEN,[\s\S]*\} from '@\/config'/)
+    assert.match(page, /import \{[\s\S]*formatDappAmountUnits,[\s\S]*readErc20Balance,[\s\S]*waitForDappContractDataSync,[\s\S]*\} from '@\/services\/dapp'/)
+    assert.match(page, /import \{[\s\S]*getAigoTokenAddress,[\s\S]*readAigoProjectAigoUnlockAt,[\s\S]*readAigoProjectCurrentAigoStakeBalance,[\s\S]*readAigoProjectMaxAigoStake,[\s\S]*\} from '@\/services\/contracts'/)
+    assert.match(page, /import \{ useDappStore \} from '@\/stores\/dapp'/)
+    assert.match(page, /import \{ formatAmount \} from '@\/shared\/formatters\/formatAmount\.ts'/)
+    assert.doesNotMatch(page, /import tokenIcon from '@\/assets\/common\/usdt\.png'/)
     assert.match(page, /import bg from '@\/assets\/saving\/bg\.png'/)
     assert.match(page, /import cardBg from '@\/assets\/saving\/card\.png'/)
+    assert.match(page, /import \{[\s\S]*parseSavingAmount,[\s\S]*submitSavingDeposit,[\s\S]*submitSavingWithdraw,[\s\S]*\} from '\.\/saving\.ts'/)
     assert.doesNotMatch(page, /SAVING_COUNTDOWN_UNITS/)
     assert.doesNotMatch(page, /COUNTDOWN_UNIT/)
+    assert.doesNotMatch(page, /SAVING_TOTAL_AMOUNT/)
+    assert.doesNotMatch(page, /SAVING_WITHDRAW_END_TIME/)
+    assert.doesNotMatch(page, /SAVING_AVAILABLE_TOKEN/)
+    assert.match(page, /const TOKEN_BALANCE_EMPTY_TEXT = '--'/)
+    assert.match(page, /const aigoTokenIconUrl = `\$\{APP_CONFIG\.routeBase\}brand\/app-logo\.png`/)
+    assert.match(page, /function formatSavingAmountText\(amount: bigint\): string \{[\s\S]*formatAmount\(formatDappAmountUnits\(amount\)\)/)
+    assert.match(page, /function getSavingActionBalanceAmount\([\s\S]*action: SavingAction,[\s\S]*depositBalanceAmount: bigint,[\s\S]*withdrawBalanceAmount: bigint,[\s\S]*\): bigint \{[\s\S]*return action === 'deposit' \? depositBalanceAmount : withdrawBalanceAmount/)
+    assert.match(page, /const walletAddress = useDappStore\(\(state\) => state\.walletAddress\)/)
+    assert.match(page, /const \[savingTokenBalanceAmount, setSavingTokenBalanceAmount\] = useState\(0n\)/)
+    assert.match(page, /const \[savingStakeBalanceAmount, setSavingStakeBalanceAmount\] = useState\(0n\)/)
+    assert.match(page, /const \[savingMaxStakeAmount, setSavingMaxStakeAmount\] = useState\(0n\)/)
+    assert.match(page, /const \[savingUnlockAt, setSavingUnlockAt\] = useState\(0n\)/)
+    assert.match(page, /const \[savingDataLoaded, setSavingDataLoaded\] = useState\(false\)/)
+    assert.match(page, /const \[savingDataRefreshVersion, setSavingDataRefreshVersion\] = useState\(0\)/)
+    assert.match(page, /const \[savingSubmitting, setSavingSubmitting\] = useState\(false\)/)
+    assert.match(page, /const \[tokenBalanceAmount, maxStakeAmount, stakeBalanceAmount, unlockAt\] = await Promise\.all\(\[[\s\S]*readErc20Balance\([\s\S]*getAigoTokenAddress\(\),[\s\S]*walletAddress as Address,[\s\S]*\),[\s\S]*readAigoProjectMaxAigoStake\(\),[\s\S]*readAigoProjectCurrentAigoStakeBalance\([\s\S]*walletAddress as Address,[\s\S]*\),[\s\S]*readAigoProjectAigoUnlockAt\([\s\S]*walletAddress as Address,[\s\S]*\),[\s\S]*\]\)/)
+    assert.match(page, /setSavingTokenBalanceAmount\(tokenBalanceAmount\)/)
+    assert.match(page, /setSavingMaxStakeAmount\(maxStakeAmount\)/)
+    assert.match(page, /setSavingStakeBalanceAmount\(stakeBalanceAmount\)/)
+    assert.match(page, /setSavingUnlockAt\(unlockAt\)/)
+    assert.match(page, /setSavingDataLoaded\(true\)/)
+    assert.match(page, /function validateSavingAmount\(\): bigint \| undefined \{[\s\S]*message\.warning\(t\('请输入金额'\)\)[\s\S]*parseSavingAmount\(normalizeSavingAmountInput\(amountText\)\)[\s\S]*message\.warning\(t\('金额格式错误'\)\)[\s\S]*message\.warning\(t\('余额不足'\)\)/)
+    assert.match(page, /async function handleConfirmSavingAction\(\) \{[\s\S]*if \(!activeAction \|\| savingSubmitting\) return[\s\S]*setSavingSubmitting\(true\)[\s\S]*await submitSavingDeposit\(\{[\s\S]*amount,[\s\S]*walletAddress: walletAddress as Address,[\s\S]*\}\)[\s\S]*await submitSavingWithdraw\(amount\)[\s\S]*await waitForDappContractDataSync\(\)[\s\S]*setSavingDataRefreshVersion\(\(current\) => current \+ 1\)[\s\S]*message\.success\(t\('操作成功'\)\)[\s\S]*setSavingSubmitting\(false\)/)
+    assert.match(page, /<ContractLoading show=\{savingSubmitting\} \/>/)
     assert.match(page, /<section className="saving-page"/)
     assert.match(page, /<img src=\{bg\} className="saving-page__bg"/)
     assert.match(page, /<img src=\{cardBg\} className="saving-page__card-bg"/)
-    assert.match(page, /<img src=\{tokenIcon\} className="img-48 flex-none"/)
-    assert.match(page, /Token/)
-    assert.match(page, /126,567\.086748/)
-    assert.match(page, /总存入金额/)
-    assert.match(page, /存入/)
-    assert.match(page, /提取结束倒计时/)
-    assert.match(page, /<CountdownTimer[\s\S]*targetTime=\{SAVING_WITHDRAW_END_TIME\}[\s\S]*timeZone=\{APP_CONFIG\.timeZone\}/)
+    assert.match(page, /<img src=\{aigoTokenIconUrl\} className="img-48 flex-none"/)
+    assert.match(page, /PROJECT_TOKEN\.platform\.symbol/)
+    assert.doesNotMatch(page, /126,567\.086748/)
+    assert.match(page, /t\('总存入金额'\)/)
+    assert.match(page, /t\('存入'\)/)
+    assert.match(page, /t\('提取结束倒计时'\)/)
+    assert.match(page, /<CountdownTimer[\s\S]*targetTime=\{savingCountdownTargetTime\}[\s\S]*timeZone=\{APP_CONFIG\.timeZone\}/)
     assert.doesNotMatch(page, /units=\{/)
-    assert.match(page, /提取/)
+    assert.match(page, /t\('提取'\)/)
     assert.doesNotMatch(page, /提现/)
     assert.match(page, /type SavingAction = 'deposit' \| 'withdraw'/)
-    assert.match(page, /SAVING_POPUP_CONFIG/)
+    assert.match(page, /const popupConfig: SavingPopupConfig \| null/)
     assert.match(page, /contentTheme="gradient-card"/)
     assert.match(page, /closeOnOverlayClick=\{false\}/)
+    assert.doesNotMatch(page, /contentClassName="saving-page__amount-popup"/)
     assert.match(page, /placeholder=\{popupConfig\.placeholder\}/)
     assert.match(page, /value=\{amountValue\}/)
     assert.match(page, /onChange=\{handleAmountChange\}/)
-    assert.match(page, /我的Token/)
-    assert.match(page, /可提Token/)
-    assert.match(page, />\s*全部\s*</)
-    assert.match(page, />\s*确认\s*</)
-    assert.doesNotMatch(page, /disabled/)
+    assert.match(page, /popupConfig\.balanceLabel/)
+    assert.match(page, /savingActionBalanceText/)
+    assert.match(page, /\{t\('全部'\)\}/)
+    assert.match(page, /\{t\('确认'\)\}/)
+    assert.match(page, /disabled=\{savingSubmitting\}/)
     assert.doesNotMatch(page, /style=/)
+
+    assert.match(helper, /import type \{[\s\S]*Address,[\s\S]*TransactionReceipt,[\s\S]*\} from 'viem'/)
+    assert.match(helper, /import \{[\s\S]*ensureErc20Allowance,[\s\S]*parseDappAmountUnits,[\s\S]*\} from '@\/services\/dapp'/)
+    assert.match(helper, /import \{[\s\S]*getAigoProjectAddress,[\s\S]*getAigoTokenAddress,[\s\S]*writeAigoProjectDepositAIGO,[\s\S]*writeAigoProjectWithdrawAIGO,[\s\S]*\} from '@\/services\/contracts'/)
+    assert.match(helper, /export function parseSavingAmount\(amountText: string\): bigint \{[\s\S]*return parseDappAmountUnits\(amountText\)/)
+    assert.match(helper, /export async function submitSavingDeposit\([\s\S]*\): Promise<TransactionReceipt> \{[\s\S]*await ensureErc20Allowance\([\s\S]*getAigoProjectAddress\(\),[\s\S]*amount,[\s\S]*getAigoTokenAddress\(\),[\s\S]*walletAddress,[\s\S]*\)[\s\S]*return writeAigoProjectDepositAIGO\(amount\)/)
+    assert.match(helper, /export function submitSavingWithdraw\([\s\S]*amount: bigint,[\s\S]*\): Promise<TransactionReceipt> \{[\s\S]*return writeAigoProjectWithdrawAIGO\(amount\)/)
 
     assert.match(styles, /\.saving-page\s*\{/)
     assert.match(styles, /background-color:\s*#001020/)
@@ -54,7 +96,8 @@ test('saving page builds the static piggy bank screen with the shared countdown 
     assert.match(styles, /&__card-bg/)
     assert.match(styles, /&__deposit-button[\s\S]*@include auto-button\(60px,\s*999px,\s*60px\)/)
     assert.match(styles, /&__withdraw-button[\s\S]*@include full-button\(88px,\s*999px\)/)
-    assert.match(styles, /&__amount-popup/)
+    assert.doesNotMatch(styles, /&__amount-popup/)
+    assert.doesNotMatch(styles, /min-height:\s*494px/)
     assert.match(styles, /&__amount-input-wrap/)
     assert.match(styles, /&__amount-input/)
     assert.match(styles, /&__popup-confirm[\s\S]*@include full-button\(80px,\s*999px\)/)
@@ -63,4 +106,32 @@ test('saving page builds the static piggy bank screen with the shared countdown 
     assert.match(colors, /--app-btn-disabled-bg:\s*#1A2836;/)
     assert.match(colors, /--app-popup-gradient-card-bg:/)
     assert.match(colors, /--app-popup-gradient-card-border:/)
+})
+
+test('saving page hides zero countdown and centers card content', async () => {
+    const [page, styles] = await Promise.all([
+        readFile('src/pages/main/saving/SavingPage.tsx', 'utf8'),
+        readFile('src/pages/main/saving/SavingPage.scss', 'utf8'),
+    ])
+
+    assert.match(page, /const \[savingCountdownNow, setSavingCountdownNow\] = useState\(\(\) => Date\.now\(\)\)/)
+    assert.match(page, /const showSavingCountdown = savingCountdownTargetTime !== undefined && savingCountdownTargetTime > savingCountdownNow/)
+    assert.match(page, /window\.setInterval\(\(\) => \{[\s\S]*setSavingCountdownNow\(Date\.now\(\)\)[\s\S]*\}, 1000\)/)
+    assert.match(page, /className="saving-page__card-content rel flex flex-column items-center justify-center pt-60 pb-60"/)
+    assert.match(page, /\{showSavingCountdown \? \([\s\S]*saving-page__countdown-block[\s\S]*t\('提取结束倒计时'\)[\s\S]*<CountdownTimer[\s\S]*\) : null\}/)
+
+    assert.match(styles, /&__card-content\s*\{[\s\S]*min-height:\s*628px;[\s\S]*\}/)
+    assert.doesNotMatch(styles, /&__card-content[\s\S]*align-items:\s*center/)
+    assert.doesNotMatch(styles, /&__card-content[\s\S]*justify-content:\s*center/)
+})
+
+test('saving page disables withdraw while countdown is visible', async () => {
+    const [page, styles] = await Promise.all([
+        readFile('src/pages/main/saving/SavingPage.tsx', 'utf8'),
+        readFile('src/pages/main/saving/SavingPage.scss', 'utf8'),
+    ])
+
+    assert.match(page, /const isSavingWithdrawDisabled = savingSubmitting \|\| showSavingCountdown/)
+    assert.match(page, /className="saving-page__withdraw-button size-32 bold-5 mt-60"[\s\S]*disabled=\{isSavingWithdrawDisabled\}[\s\S]*onClick=\{\(\) => handleOpenPopup\('withdraw'\)\}/)
+    assert.match(styles, /&__withdraw-button\s*\{[\s\S]*&:disabled\s*\{[\s\S]*color:\s*var\(--app-btn-disabled-color\);[\s\S]*background:\s*var\(--app-btn-disabled-bg\);[\s\S]*cursor:\s*not-allowed;[\s\S]*\}/)
 })

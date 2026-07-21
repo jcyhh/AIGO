@@ -1,0 +1,30 @@
+.home-reward-detail-page {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background-color: #001020;
+    color: #FFFFFF;
+
+    &__tabs {
+        width: 100%;
+    }
+
+    &__list {
+        width: 100%;
+    }
+
+    &__card {
+        width: 100%;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        background: linear-gradient(135deg, #1B2837 0%, #0B1A29 100%);
+        padding: 30px;
+    }
+
+    &__amount-row {
+        min-width: 0;
+    }
+
+    &__empty {
+        padding: 100px 0;
+    }
+}

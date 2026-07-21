@@ -6,3 +6,6 @@ This directory stores TypeScript types that are shared across multiple business 
 
 Keep feature-only response types inside the corresponding feature directory.
 只属于某个 feature 的接口响应类型应保留在对应 feature 目录中。
+
+`api.ts` stores small request contract primitives shared by multiple features, such as pagination params and amount input values.
+`api.ts` 存放多个 feature 共用的请求契约原语，例如分页参数和金额入参。

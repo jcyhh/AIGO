@@ -7,14 +7,15 @@ import {
 } from '@/services/dapp/index.ts'
 import type { DappWalletConnection } from '@/services/dapp/types.ts'
 import {
-    getReferralCode,
     getWalletAddress,
 } from '@/services/storage/index.ts'
+import { syncReferralBoundState } from '@/features/referral/status.ts'
 
 import { requestDappLogin } from './api.ts'
 import {
     AUTH_ERROR_MESSAGE,
     shouldUseTemporaryDappLogin,
+    translateAuthErrorMessage,
 } from './config.ts'
 import { registerAuthLogoutCleanup } from './lifecycle.ts'
 import { completeLogin, logout } from './session.ts'
@@ -57,7 +58,7 @@ async function initializeDappAuthSession(options: {
     const initialized = await initializeDappWallet({ attachListeners: false })
 
     if (!initialized) {
-        throw new Error(AUTH_ERROR_MESSAGE.dappUnavailable)
+        throw new Error(translateAuthErrorMessage(AUTH_ERROR_MESSAGE.dappUnavailable))
     }
 
     const storedAddress = options.verifyStoredAddress
@@ -66,7 +67,7 @@ async function initializeDappAuthSession(options: {
     const connection = await connectDappWallet()
 
     if (storedAddress && !isSameDappAddress(storedAddress, connection.address)) {
-        throw new Error(AUTH_ERROR_MESSAGE.dappSessionChanged)
+        throw new Error(translateAuthErrorMessage(AUTH_ERROR_MESSAGE.dappSessionChanged))
     }
 
     startDappAuthListeners()
@@ -80,27 +81,29 @@ export async function loginWithDapp(): Promise<void> {
 
     if (shouldUseTemporaryDappLogin()) {
         if (attempt !== dappLoginAttempt) {
-            throw new Error(AUTH_ERROR_MESSAGE.dappSessionChanged)
+            throw new Error(translateAuthErrorMessage(AUTH_ERROR_MESSAGE.dappSessionChanged))
         }
 
+        await syncReferralBoundState({ walletAddress: address })
         completeLogin('token')
         return
     }
 
     const response = await requestDappLogin({
-        referralCode: getReferralCode(),
         address,
         signature: signResult.signature,
         timestamp: signResult.timestamp,
     })
 
     if (attempt !== dappLoginAttempt) {
-        throw new Error(AUTH_ERROR_MESSAGE.dappSessionChanged)
+        throw new Error(translateAuthErrorMessage(AUTH_ERROR_MESSAGE.dappSessionChanged))
     }
 
+    await syncReferralBoundState({ walletAddress: address })
     completeLogin(response.token)
 }
 
 export async function resumeDappAuthSession(): Promise<void> {
-    await initializeDappAuthSession({ verifyStoredAddress: true })
+    const { address } = await initializeDappAuthSession({ verifyStoredAddress: true })
+    await syncReferralBoundState({ walletAddress: address })
 }

@@ -1,4 +1,6 @@
-import { useEffect } from 'react'
+import {
+    useEffect,
+} from 'react'
 import {
     BrowserRouter,
     Navigate,
@@ -8,7 +10,7 @@ import {
     useNavigate,
 } from 'react-router'
 
-import { HomePage, MainLayout, SavingPage, SwapPage, WeightPage } from '@/pages/main'
+import { HomePage, HomeRewardDetailPage, MainLayout, SavingPage, SwapPage, WeightPage } from '@/pages/main'
 import { SplashPage } from '@/pages/splash/SplashPage.tsx'
 import { SHOWCASE_ROUTE_ELEMENTS } from '@/showcase/router/index.ts'
 import { LoginPage } from '@/pages/auth/index.ts'
@@ -54,6 +56,7 @@ export function AppRouter() {
                         <Route path={ROUTE_PATH.weight.slice(1)} element={<WeightPage />} />
                         <Route path={ROUTE_PATH.saving.slice(1)} element={<SavingPage />} />
                     </Route>
+                    <Route path={ROUTE_PATH.homeRewardDetail.slice(1)} element={<HomeRewardDetailPage />} />
                 </Route>
 
                 {SHOWCASE_ROUTE_ELEMENTS}

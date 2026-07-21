@@ -6,6 +6,7 @@
 @use './common/index';
 @use './common/common';
 @use './common//base.scss';
+@use '../components/Message/Message';
 
 * {
     margin: 0;
