@@ -1,4 +1,5 @@
 import {
+    useCallback,
     useEffect,
     useState,
     type ChangeEvent,
@@ -9,6 +10,7 @@ import { ContractLoading } from '@/components/ContractLoading'
 import { Empty } from '@/components/Empty'
 import { InfiniteScroll } from '@/components/InfiniteScroll'
 import { message } from '@/components/Message'
+import { usePageRefresh } from '@/components/PagePullRefresh'
 import { Popup } from '@/components/Popup'
 import { getAssetLogs } from '@/features/asset/api.ts'
 import type { AssetLog } from '@/features/asset/types.ts'
@@ -18,6 +20,7 @@ import {
     waitForDappContractDataSync,
 } from '@/services/dapp'
 import { formatAmount } from '@/shared/formatters/formatAmount.ts'
+import { useLatestRequest } from '@/shared/hooks/useLatestRequest.ts'
 import bg from '@/assets/weight/bg.png'
 import tabActive from '@/assets/weight/tab-act.png'
 import tabInactive from '@/assets/weight/tab.png'
@@ -128,97 +131,140 @@ export function WeightPage() {
     const { t } = useTranslation()
     const [activeWeightAssetType, setActiveWeightAssetType] = useState<WeightAssetType>('xo')
     const [weightBalances, setWeightBalances] = useState(createEmptyWeightAssetBalances)
-    const [weightBalanceRefreshVersion, setWeightBalanceRefreshVersion] = useState(0)
     const [weightAssetLogPageNo, setWeightAssetLogPageNo] = useState(1)
     const [weightAssetLogs, setWeightAssetLogs] = useState<AssetLog[]>([])
     const [weightAssetLogLoading, setWeightAssetLogLoading] = useState(false)
     const [weightAssetLogHasNextPage, setWeightAssetLogHasNextPage] = useState(false)
-    const [weightAssetLogRefreshVersion, setWeightAssetLogRefreshVersion] = useState(0)
     const [showWeightClaimPopup, setShowWeightClaimPopup] = useState(false)
     const [weightClaimAmountText, setWeightClaimAmountText] = useState('')
     const [weightClaimSubmitting, setWeightClaimSubmitting] = useState(false)
+    const {
+        createLatestRequestGuard: createWeightBalanceRequestGuard,
+        invalidateLatestRequest: invalidateWeightBalanceRequest,
+    } = useLatestRequest()
+    const {
+        createLatestRequestGuard: createWeightAssetLogRequestGuard,
+        invalidateLatestRequest: invalidateWeightAssetLogRequest,
+    } = useLatestRequest()
     const activeWeightAssetConfig = WEIGHT_ASSET_CONFIG[activeWeightAssetType]
     const activeWeightAssetBalance = weightBalances[activeWeightAssetType]
     const activeWeightAssetSymbolText = t(activeWeightAssetConfig.symbolKey)
 
-    useEffect(() => {
-        let isCurrent = true
+    const loadWeightBalances = useCallback(async () => {
+        const isCurrent = createWeightBalanceRequestGuard()
 
-        async function loadWeightBalances() {
-            try {
-                const user = await getCurrentUser()
+        try {
+            const user = await getCurrentUser()
 
-                if (isCurrent) {
-                    setWeightBalances({
-                        xo: createWeightAssetBalance(user.balance_xo),
-                        weight: createWeightAssetBalance(user.dividend_token),
-                    })
-                }
-            } catch {
-                if (isCurrent) {
-                    setWeightBalances(createEmptyWeightAssetBalances())
-                }
+            if (isCurrent()) {
+                setWeightBalances({
+                    xo: createWeightAssetBalance(user.balance_xo),
+                    weight: createWeightAssetBalance(user.dividend_token),
+                })
+            }
+        } catch {
+            if (isCurrent()) {
+                setWeightBalances(createEmptyWeightAssetBalances())
             }
         }
+    }, [createWeightBalanceRequestGuard])
 
-        void loadWeightBalances()
-
-        return () => {
-            isCurrent = false
-        }
-    }, [weightBalanceRefreshVersion])
-
-    useEffect(() => {
-        if (!WEIGHT_ASSET_CONFIG[activeWeightAssetType].supportsAssetLogs) {
+    const loadWeightAssetLogs = useCallback(async (
+        assetType: WeightAssetType,
+        pageNo: number,
+    ) => {
+        if (!WEIGHT_ASSET_CONFIG[assetType].supportsAssetLogs) {
+            invalidateWeightAssetLogRequest()
             setWeightAssetLogs([])
             setWeightAssetLogHasNextPage(false)
             setWeightAssetLogLoading(false)
             return
         }
 
-        let isCurrent = true
+        const isCurrent = createWeightAssetLogRequestGuard()
 
-        async function loadWeightAssetLogs() {
-            setWeightAssetLogLoading(true)
+        setWeightAssetLogLoading(true)
 
-            try {
-                const response = await getAssetLogs({
-                    page_no: weightAssetLogPageNo,
-                    page_size: WEIGHT_ASSET_LOG_PAGE_SIZE,
-                    ccy: WEIGHT_ASSET_CONFIG[activeWeightAssetType].ccy,
-                })
+        try {
+            const response = await getAssetLogs({
+                page_no: pageNo,
+                page_size: WEIGHT_ASSET_LOG_PAGE_SIZE,
+                ccy: WEIGHT_ASSET_CONFIG[assetType].ccy,
+            })
 
-                if (isCurrent) {
-                    setWeightAssetLogs((current) => weightAssetLogPageNo === 1 ? response.asset_logs : current.concat(response.asset_logs))
-                    setWeightAssetLogHasNextPage(response.asset_logs.length >= WEIGHT_ASSET_LOG_PAGE_SIZE)
+            if (isCurrent()) {
+                setWeightAssetLogs((current) => pageNo === 1 ? response.asset_logs : current.concat(response.asset_logs))
+                setWeightAssetLogHasNextPage(response.asset_logs.length >= WEIGHT_ASSET_LOG_PAGE_SIZE)
+            }
+        } catch {
+            if (isCurrent()) {
+                if (pageNo === 1) {
+                    setWeightAssetLogs([])
                 }
-            } catch {
-                if (isCurrent) {
-                    if (weightAssetLogPageNo === 1) {
-                        setWeightAssetLogs([])
-                    }
 
-                    setWeightAssetLogHasNextPage(false)
-                }
-            } finally {
-                if (isCurrent) {
-                    setWeightAssetLogLoading(false)
-                }
+                setWeightAssetLogHasNextPage(false)
+            }
+        } finally {
+            if (isCurrent()) {
+                setWeightAssetLogLoading(false)
             }
         }
+    }, [createWeightAssetLogRequestGuard, invalidateWeightAssetLogRequest])
 
-        void loadWeightAssetLogs()
+    const refreshWeightPageData = useCallback(async () => {
+        setWeightAssetLogPageNo(1)
+
+        const refreshTasks = [loadWeightBalances()]
+
+        if (activeWeightAssetConfig.supportsAssetLogs) {
+            refreshTasks.push(loadWeightAssetLogs(activeWeightAssetType, 1))
+        } else {
+            invalidateWeightAssetLogRequest()
+            setWeightAssetLogs([])
+            setWeightAssetLogHasNextPage(false)
+            setWeightAssetLogLoading(false)
+        }
+
+        await Promise.all(refreshTasks)
+    }, [
+        activeWeightAssetConfig.supportsAssetLogs,
+        activeWeightAssetType,
+        invalidateWeightAssetLogRequest,
+        loadWeightAssetLogs,
+        loadWeightBalances,
+    ])
+
+    const handleWeightPullRefresh = useCallback(() => refreshWeightPageData(), [refreshWeightPageData])
+
+    usePageRefresh(handleWeightPullRefresh, !weightClaimSubmitting)
+
+    useEffect(() => {
+        void refreshWeightPageData()
 
         return () => {
-            isCurrent = false
+            invalidateWeightBalanceRequest()
+            invalidateWeightAssetLogRequest()
         }
-    }, [activeWeightAssetType, weightAssetLogPageNo, weightAssetLogRefreshVersion])
+    }, [invalidateWeightAssetLogRequest, invalidateWeightBalanceRequest, refreshWeightPageData])
+
+    useEffect(() => {
+        if (weightAssetLogPageNo === 1) return undefined
+
+        void loadWeightAssetLogs(activeWeightAssetType, weightAssetLogPageNo)
+
+        return undefined
+    }, [activeWeightAssetType, loadWeightAssetLogs, weightAssetLogPageNo])
 
     function handleChangeWeightAssetType(assetType: WeightAssetType) {
         if (assetType === activeWeightAssetType) return
 
         setActiveWeightAssetType(assetType)
         setWeightAssetLogPageNo(1)
+
+        if (!WEIGHT_ASSET_CONFIG[assetType].supportsAssetLogs) {
+            invalidateWeightAssetLogRequest()
+        }
+
         setWeightAssetLogs([])
         setWeightAssetLogHasNextPage(false)
         setShowWeightClaimPopup(false)
@@ -311,9 +357,7 @@ export function WeightPage() {
 
             setShowWeightClaimPopup(false)
             setWeightClaimAmountText('')
-            setWeightBalanceRefreshVersion((current) => current + 1)
-            setWeightAssetLogPageNo(1)
-            setWeightAssetLogRefreshVersion((current) => current + 1)
+            await refreshWeightPageData()
             message.success(t('操作成功'))
         } catch (error) {
             message.warning(getWeightClaimErrorMessage(error))

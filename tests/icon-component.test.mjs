@@ -34,6 +34,7 @@ test('icon component provides a local inline svg icon contract', async () => {
     assert.match(config, /'cross'/)
     assert.match(config, /'scan'/)
     assert.match(config, /'copy'/)
+    assert.match(config, /'refresh'/)
     assert.match(config, /'loading'/)
     assert.match(config, /paths:\s*IconPathDefinition\[\]/)
     assert.match(config, /'loading':\s*\{\s*paths:\s*\[\s*\]/)

@@ -10,6 +10,7 @@ import {
     useNavigate,
 } from 'react-router'
 
+import { PagePullRefresh } from '@/components/PagePullRefresh'
 import { HomePage, HomeRewardDetailPage, MainLayout, SavingPage, SwapPage, WeightPage } from '@/pages/main'
 import { SplashPage } from '@/pages/splash/SplashPage.tsx'
 import { SHOWCASE_ROUTE_ELEMENTS } from '@/showcase/router/index.ts'
@@ -40,6 +41,14 @@ function RequireAuthentication() {
     return <Outlet />
 }
 
+function PullRefreshRouteOutlet() {
+    return (
+        <PagePullRefresh>
+            <Outlet />
+        </PagePullRefresh>
+    )
+}
+
 export function AppRouter() {
     return (
         <BrowserRouter basename={APP_ROUTER_BASENAME}>
@@ -50,13 +59,15 @@ export function AppRouter() {
                 <Route path={ROUTE_PATH.login} element={<LoginPage />} />
 
                 <Route element={<RequireAuthentication />}>
-                    <Route element={<MainLayout />}>
-                        <Route path={ROUTE_PATH.home.slice(1)} element={<HomePage />} />
-                        <Route path={ROUTE_PATH.swap.slice(1)} element={<SwapPage />} />
-                        <Route path={ROUTE_PATH.weight.slice(1)} element={<WeightPage />} />
-                        <Route path={ROUTE_PATH.saving.slice(1)} element={<SavingPage />} />
+                    <Route element={<PullRefreshRouteOutlet />}>
+                        <Route element={<MainLayout />}>
+                            <Route path={ROUTE_PATH.home.slice(1)} element={<HomePage />} />
+                            <Route path={ROUTE_PATH.swap.slice(1)} element={<SwapPage />} />
+                            <Route path={ROUTE_PATH.weight.slice(1)} element={<WeightPage />} />
+                            <Route path={ROUTE_PATH.saving.slice(1)} element={<SavingPage />} />
+                        </Route>
+                        <Route path={ROUTE_PATH.homeRewardDetail.slice(1)} element={<HomeRewardDetailPage />} />
                     </Route>
-                    <Route path={ROUTE_PATH.homeRewardDetail.slice(1)} element={<HomeRewardDetailPage />} />
                 </Route>
 
                 {SHOWCASE_ROUTE_ELEMENTS}

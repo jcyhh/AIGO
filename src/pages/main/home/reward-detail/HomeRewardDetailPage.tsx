@@ -1,4 +1,5 @@
 import {
+    useCallback,
     useEffect,
     useState,
 } from 'react'
@@ -6,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 
 import { Empty } from '@/components/Empty'
 import { InfiniteScroll } from '@/components/InfiniteScroll'
+import { usePageRefresh } from '@/components/PagePullRefresh'
 import { SecondaryHeader } from '@/components/SecondaryHeader'
 import { SegmentedTabs } from '@/components/SegmentedTabs'
 import { PROJECT_TOKEN } from '@/config'
@@ -16,6 +18,7 @@ import type {
     OrderRewardLogType,
 } from '@/features/order/types.ts'
 import { formatAmount } from '@/shared/formatters/formatAmount.ts'
+import { useLatestRequest } from '@/shared/hooks/useLatestRequest.ts'
 
 import './HomeRewardDetailPage.scss'
 
@@ -62,48 +65,69 @@ export function HomeRewardDetailPage() {
     const [pageNo, setPageNo] = useState(1)
     const [loading, setLoading] = useState(false)
     const [hasNextPage, setHasNextPage] = useState(false)
+    const {
+        createLatestRequestGuard: createRewardLogRequestGuard,
+        invalidateLatestRequest: invalidateRewardLogRequest,
+    } = useLatestRequest()
     const filterTabs = HOME_REWARD_DETAIL_FILTER_LIST.map((filter) => ({
         label: filter === 'static' ? t('静态收益') : t('动态收益'),
         value: filter,
     }))
 
-    useEffect(() => {
-        let isCurrent = true
+    const loadRewardLogs = useCallback(async (
+        filter: HomeRewardDetailFilter,
+        nextPageNo: number,
+    ) => {
+        const isCurrent = createRewardLogRequestGuard()
 
-        async function loadRewardLogs() {
-            setLoading(true)
+        setLoading(true)
 
-            try {
-                const response = await getOrderRewardLogs(createHomeRewardDetailListParams(activeFilter, pageNo))
+        try {
+            const response = await getOrderRewardLogs(createHomeRewardDetailListParams(filter, nextPageNo))
 
-                if (isCurrent) {
-                    setRewardLogs((current) => pageNo === 1 ? response.reward_logs : current.concat(response.reward_logs))
-                    setHasNextPage(response.reward_logs.length >= HOME_REWARD_DETAIL_PAGE_SIZE)
+            if (isCurrent()) {
+                setRewardLogs((current) => nextPageNo === 1 ? response.reward_logs : current.concat(response.reward_logs))
+                setHasNextPage(response.reward_logs.length >= HOME_REWARD_DETAIL_PAGE_SIZE)
+            }
+        } catch {
+            if (isCurrent()) {
+                if (nextPageNo === 1) {
+                    setRewardLogs([])
                 }
-            } catch {
-                if (isCurrent) {
-                    if (pageNo === 1) {
-                        setRewardLogs([])
-                    }
 
-                    setHasNextPage(false)
-                }
-            } finally {
-                if (isCurrent) {
-                    setLoading(false)
-                }
+                setHasNextPage(false)
+            }
+        } finally {
+            if (isCurrent()) {
+                setLoading(false)
             }
         }
+    }, [createRewardLogRequestGuard])
 
-        void loadRewardLogs()
+    const refreshRewardLogs = useCallback(async () => {
+        setPageNo(1)
+        setRewardLogs([])
+        setHasNextPage(false)
+        await loadRewardLogs(activeFilter, 1)
+    }, [activeFilter, loadRewardLogs])
 
-        return () => {
-            isCurrent = false
-        }
-    }, [
-        activeFilter,
-        pageNo,
-    ])
+    const handlePagePullRefresh = useCallback(() => refreshRewardLogs(), [refreshRewardLogs])
+
+    usePageRefresh(handlePagePullRefresh, !loading)
+
+    useEffect(() => {
+        void refreshRewardLogs()
+
+        return invalidateRewardLogRequest
+    }, [invalidateRewardLogRequest, refreshRewardLogs])
+
+    useEffect(() => {
+        if (pageNo === 1) return undefined
+
+        void loadRewardLogs(activeFilter, pageNo)
+
+        return undefined
+    }, [activeFilter, loadRewardLogs, pageNo])
 
     function handleChangeFilter(filter: HomeRewardDetailFilter) {
         setActiveFilter(filter)

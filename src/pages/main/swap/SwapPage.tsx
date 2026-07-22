@@ -1,4 +1,5 @@
 import {
+    useCallback,
     useEffect,
     useState,
 } from 'react'
@@ -17,6 +18,7 @@ import {
 import {
     message,
 } from '@/components/Message'
+import { usePageRefresh } from '@/components/PagePullRefresh'
 import {
     APP_CONFIG,
     PROJECT_TOKEN,
@@ -36,6 +38,7 @@ import { getSwapLogs } from '@/features/swap/api.ts'
 import type { SwapLog } from '@/features/swap/types.ts'
 import { useDappStore } from '@/stores/dapp'
 import { formatQuantity } from '@/shared/formatters/formatQuantity.ts'
+import { useLatestRequest } from '@/shared/hooks/useLatestRequest.ts'
 import usdtIcon from '@/assets/common/usdt.png'
 import walletIcon from '@/assets/home/wallet.png'
 import bg from '@/assets/swap/bg.png'
@@ -108,6 +111,12 @@ function getSwapErrorMessage(error: unknown): string {
     return String(error)
 }
 
+function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => {
+        window.setTimeout(resolve, ms)
+    })
+}
+
 export function SwapPage() {
     const { t } = useTranslation()
     const walletAddress = useDappStore((state) => state.walletAddress)
@@ -117,18 +126,36 @@ export function SwapPage() {
     const [swapMinUsdtOutAmount, setSwapMinUsdtOutAmount] = useState(0n)
     const [swapSubmitting, setSwapSubmitting] = useState(false)
     const [platformTokenBalanceAmount, setPlatformTokenBalanceAmount] = useState(0n)
-    const [platformTokenBalanceRefreshVersion, setPlatformTokenBalanceRefreshVersion] = useState(0)
     const [swapRecords, setSwapRecords] = useState<SwapRecord[]>([])
     const [swapRecordPageNo, setSwapRecordPageNo] = useState(1)
     const [swapRecordLoading, setSwapRecordLoading] = useState(false)
     const [swapRecordHasNextPage, setSwapRecordHasNextPage] = useState(false)
-    const [swapRecordRefreshVersion, setSwapRecordRefreshVersion] = useState(0)
     const [platformTokenBalanceText, setPlatformTokenBalanceText] = useState(TOKEN_BALANCE_EMPTY_TEXT)
     const [platformTokenBalanceValue, setPlatformTokenBalanceValue] = useState(TOKEN_BALANCE_EMPTY_TEXT)
+    const {
+        createLatestRequestGuard: createPlatformTokenBalanceRequestGuard,
+        invalidateLatestRequest: invalidatePlatformTokenBalanceRequest,
+    } = useLatestRequest()
+    const {
+        createLatestRequestGuard: createSwapQuoteRequestGuard,
+        invalidateLatestRequest: invalidateSwapQuoteRequest,
+    } = useLatestRequest()
+    const {
+        createLatestRequestGuard: createSwapRecordRequestGuard,
+        invalidateLatestRequest: invalidateSwapRecordRequest,
+    } = useLatestRequest()
     const fromToken = SWAP_TOKEN_MAP[PROJECT_TOKEN.platform.symbol]
     const toToken = SWAP_TOKEN_MAP[PROJECT_TOKEN.usdt.symbol]
 
-    useEffect(() => {
+    const resetSwapQuote = useCallback(() => {
+        setQuotedSwapAmountIn(0n)
+        setSwapMinUsdtOutAmount(0n)
+        setQuotedUsdtText(TOKEN_BALANCE_EMPTY_TEXT)
+    }, [])
+
+    const loadPlatformTokenBalance = useCallback(async () => {
+        const isCurrent = createPlatformTokenBalanceRequestGuard()
+
         if (!walletAddress) {
             setPlatformTokenBalanceAmount(0n)
             setPlatformTokenBalanceValue(TOKEN_BALANCE_EMPTY_TEXT)
@@ -136,43 +163,32 @@ export function SwapPage() {
             return
         }
 
-        let isCurrent = true
+        try {
+            const balance = await readErc20Balance(
+                getAigoTokenAddress(),
+                walletAddress as Address,
+            )
 
-        async function loadPlatformTokenBalance() {
-            try {
-                const balance = await readErc20Balance(
-                    getAigoTokenAddress(),
-                    walletAddress as Address,
-                )
-
-                if (isCurrent) {
-                    setPlatformTokenBalanceAmount(balance)
-                    setPlatformTokenBalanceValue(formatDappAmountUnits(balance))
-                    setPlatformTokenBalanceText(formatQuantity(formatDappAmountUnits(balance)))
-                }
-            } catch {
-                if (isCurrent) {
-                    setPlatformTokenBalanceAmount(0n)
-                    setPlatformTokenBalanceValue(TOKEN_BALANCE_EMPTY_TEXT)
-                    setPlatformTokenBalanceText(TOKEN_BALANCE_EMPTY_TEXT)
-                }
+            if (isCurrent()) {
+                setPlatformTokenBalanceAmount(balance)
+                setPlatformTokenBalanceValue(formatDappAmountUnits(balance))
+                setPlatformTokenBalanceText(formatQuantity(formatDappAmountUnits(balance)))
+            }
+        } catch {
+            if (isCurrent()) {
+                setPlatformTokenBalanceAmount(0n)
+                setPlatformTokenBalanceValue(TOKEN_BALANCE_EMPTY_TEXT)
+                setPlatformTokenBalanceText(TOKEN_BALANCE_EMPTY_TEXT)
             }
         }
+    }, [createPlatformTokenBalanceRequestGuard, walletAddress])
 
-        void loadPlatformTokenBalance()
-
-        return () => {
-            isCurrent = false
-        }
-    }, [walletAddress, platformTokenBalanceRefreshVersion])
-
-    useEffect(() => {
+    const loadSwapQuote = useCallback(async (delayMs = 0) => {
+        const isCurrent = createSwapQuoteRequestGuard()
         const normalizedSwapAmount = normalizeSwapQuoteInput(swapAmount)
 
         if (!normalizedSwapAmount) {
-            setQuotedSwapAmountIn(0n)
-            setSwapMinUsdtOutAmount(0n)
-            setQuotedUsdtText(TOKEN_BALANCE_EMPTY_TEXT)
+            resetSwapQuote()
             return
         }
 
@@ -181,99 +197,116 @@ export function SwapPage() {
         try {
             swapAmountIn = parseDappAmountUnits(normalizedSwapAmount)
         } catch {
-            setQuotedSwapAmountIn(0n)
-            setSwapMinUsdtOutAmount(0n)
-            setQuotedUsdtText(TOKEN_BALANCE_EMPTY_TEXT)
+            resetSwapQuote()
             return
         }
 
         if (swapAmountIn <= 0n) {
-            setQuotedSwapAmountIn(0n)
-            setSwapMinUsdtOutAmount(0n)
-            setQuotedUsdtText(TOKEN_BALANCE_EMPTY_TEXT)
+            resetSwapQuote()
             return
         }
 
-        setQuotedSwapAmountIn(0n)
-        setSwapMinUsdtOutAmount(0n)
-        setQuotedUsdtText(TOKEN_BALANCE_EMPTY_TEXT)
+        resetSwapQuote()
 
-        let isCurrent = true
-
-        const quoteTimer = window.setTimeout(() => {
-            async function loadSwapQuote() {
-                try {
-                    const amountsOut = await readAigoRouterAmountsOut(
-                        swapAmountIn,
-                        [
-                            getAigoTokenAddress(),
-                            getUsdtAddress(),
-                        ],
-                    )
-                    const quotedUsdt = amountsOut[1] ?? 0n
-                    const minUsdtOut = calculateSwapMinUsdtOut(quotedUsdt)
-
-                    if (isCurrent) {
-                        setQuotedSwapAmountIn(swapAmountIn)
-                        setSwapMinUsdtOutAmount(minUsdtOut)
-                        setQuotedUsdtText(formatQuantity(formatDappAmountUnits(minUsdtOut)))
-                    }
-                } catch {
-                    if (isCurrent) {
-                        setQuotedSwapAmountIn(0n)
-                        setSwapMinUsdtOutAmount(0n)
-                        setQuotedUsdtText(TOKEN_BALANCE_EMPTY_TEXT)
-                    }
-                }
-            }
-
-            void loadSwapQuote()
-        }, SWAP_QUOTE_DEBOUNCE_MS)
-
-        return () => {
-            isCurrent = false
-            window.clearTimeout(quoteTimer)
+        if (delayMs > 0) {
+            await sleep(delayMs)
         }
-    }, [swapAmount])
+
+        if (!isCurrent()) return
+
+        try {
+            const amountsOut = await readAigoRouterAmountsOut(
+                swapAmountIn,
+                [
+                    getAigoTokenAddress(),
+                    getUsdtAddress(),
+                ],
+            )
+            const quotedUsdt = amountsOut[1] ?? 0n
+            const minUsdtOut = calculateSwapMinUsdtOut(quotedUsdt)
+
+            if (isCurrent()) {
+                setQuotedSwapAmountIn(swapAmountIn)
+                setSwapMinUsdtOutAmount(minUsdtOut)
+                setQuotedUsdtText(formatQuantity(formatDappAmountUnits(minUsdtOut)))
+            }
+        } catch {
+            if (isCurrent()) {
+                resetSwapQuote()
+            }
+        }
+    }, [createSwapQuoteRequestGuard, resetSwapQuote, swapAmount])
+
+    const loadSwapRecords = useCallback(async (pageNo: number) => {
+        const isCurrent = createSwapRecordRequestGuard()
+
+        setSwapRecordLoading(true)
+
+        try {
+            const response = await getSwapLogs({
+                page_no: pageNo,
+                page_size: SWAP_RECORD_PAGE_SIZE,
+            })
+            const nextSwapRecords = response.swap_logs.map(mapSwapLogToRecord)
+
+            if (isCurrent()) {
+                setSwapRecords((current) => pageNo === 1 ? nextSwapRecords : current.concat(nextSwapRecords))
+                setSwapRecordHasNextPage(response.swap_logs.length >= SWAP_RECORD_PAGE_SIZE)
+            }
+        } catch {
+            if (isCurrent()) {
+                if (pageNo === 1) {
+                    setSwapRecords(EMPTY_SWAP_RECORD_LIST)
+                }
+
+                setSwapRecordHasNextPage(false)
+            }
+        } finally {
+            if (isCurrent()) {
+                setSwapRecordLoading(false)
+            }
+        }
+    }, [createSwapRecordRequestGuard])
+
+    const refreshSwapPageData = useCallback(async () => {
+        setSwapRecordPageNo(1)
+
+        await Promise.all([
+            loadPlatformTokenBalance(),
+            loadSwapQuote(),
+            loadSwapRecords(1),
+        ])
+    }, [loadPlatformTokenBalance, loadSwapQuote, loadSwapRecords])
+
+    const handleSwapPullRefresh = useCallback(() => refreshSwapPageData(), [refreshSwapPageData])
+
+    usePageRefresh(handleSwapPullRefresh, !swapSubmitting)
 
     useEffect(() => {
-        let isCurrent = true
+        void loadPlatformTokenBalance()
 
-        async function loadSwapRecords() {
-            setSwapRecordLoading(true)
+        return invalidatePlatformTokenBalanceRequest
+    }, [invalidatePlatformTokenBalanceRequest, loadPlatformTokenBalance])
 
-            try {
-                const response = await getSwapLogs({
-                    page_no: swapRecordPageNo,
-                    page_size: SWAP_RECORD_PAGE_SIZE,
-                })
-                const nextSwapRecords = response.swap_logs.map(mapSwapLogToRecord)
+    useEffect(() => {
+        void loadSwapQuote(SWAP_QUOTE_DEBOUNCE_MS)
 
-                if (isCurrent) {
-                    setSwapRecords((current) => swapRecordPageNo === 1 ? nextSwapRecords : current.concat(nextSwapRecords))
-                    setSwapRecordHasNextPage(response.swap_logs.length >= SWAP_RECORD_PAGE_SIZE)
-                }
-            } catch {
-                if (isCurrent) {
-                    if (swapRecordPageNo === 1) {
-                        setSwapRecords(EMPTY_SWAP_RECORD_LIST)
-                    }
+        return invalidateSwapQuoteRequest
+    }, [invalidateSwapQuoteRequest, loadSwapQuote])
 
-                    setSwapRecordHasNextPage(false)
-                }
-            } finally {
-                if (isCurrent) {
-                    setSwapRecordLoading(false)
-                }
-            }
-        }
+    useEffect(() => {
+        void loadSwapRecords(1)
 
-        void loadSwapRecords()
+        return invalidateSwapRecordRequest
+    }, [invalidateSwapRecordRequest, loadSwapRecords])
 
-        return () => {
-            isCurrent = false
-        }
-    }, [swapRecordPageNo, swapRecordRefreshVersion])
+    useEffect(() => {
+        if (swapRecordPageNo === 1) return undefined
+
+        void loadSwapRecords(swapRecordPageNo)
+
+        return undefined
+    }, [loadSwapRecords, swapRecordPageNo])
 
     function handleUseAllBalance() {
         setSwapAmount(platformTokenBalanceValue)
@@ -343,12 +376,12 @@ export function SwapPage() {
             await waitForDappContractDataSync()
 
             setSwapAmount('')
-            setQuotedSwapAmountIn(0n)
-            setSwapMinUsdtOutAmount(0n)
-            setQuotedUsdtText(TOKEN_BALANCE_EMPTY_TEXT)
-            setPlatformTokenBalanceRefreshVersion((current) => current + 1)
+            resetSwapQuote()
             setSwapRecordPageNo(1)
-            setSwapRecordRefreshVersion((current) => current + 1)
+            await Promise.all([
+                loadPlatformTokenBalance(),
+                loadSwapRecords(1),
+            ])
             message.success(t('操作成功'))
         } catch (error) {
             message.warning(getSwapErrorMessage(error))

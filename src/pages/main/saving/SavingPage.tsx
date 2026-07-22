@@ -1,4 +1,5 @@
 import {
+    useCallback,
     useEffect,
     useState,
     type ChangeEvent,
@@ -9,6 +10,7 @@ import type { Address } from 'viem'
 import { ContractLoading } from '@/components/ContractLoading'
 import { CountdownTimer } from '@/components/CountdownTimer'
 import { message } from '@/components/Message'
+import { usePageRefresh } from '@/components/PagePullRefresh'
 import { Popup } from '@/components/Popup'
 import {
     APP_CONFIG,
@@ -25,6 +27,7 @@ import {
     readAigoProjectCurrentAigoStakeBalance,
     readAigoProjectMaxAigoStake,
 } from '@/services/contracts'
+import { useLatestRequest } from '@/shared/hooks/useLatestRequest.ts'
 import { useDappStore } from '@/stores/dapp'
 import { formatAmount } from '@/shared/formatters/formatAmount.ts'
 import bg from '@/assets/saving/bg.png'
@@ -80,9 +83,12 @@ export function SavingPage() {
     const [savingMaxStakeAmount, setSavingMaxStakeAmount] = useState(0n)
     const [savingUnlockAt, setSavingUnlockAt] = useState(0n)
     const [savingDataLoaded, setSavingDataLoaded] = useState(false)
-    const [savingDataRefreshVersion, setSavingDataRefreshVersion] = useState(0)
     const [savingSubmitting, setSavingSubmitting] = useState(false)
     const [savingCountdownNow, setSavingCountdownNow] = useState(() => Date.now())
+    const {
+        createLatestRequestGuard: createSavingDataRequestGuard,
+        invalidateLatestRequest: invalidateSavingDataRequest,
+    } = useLatestRequest()
     const popupConfig: SavingPopupConfig | null = activeAction === null
         ? null
         : {
@@ -115,7 +121,9 @@ export function SavingPage() {
     const showSavingCountdown = savingCountdownTargetTime !== undefined && savingCountdownTargetTime > savingCountdownNow
     const isSavingWithdrawDisabled = savingSubmitting || showSavingCountdown
 
-    useEffect(() => {
+    const loadSavingContractData = useCallback(async () => {
+        const isCurrent = createSavingDataRequestGuard()
+
         if (!walletAddress) {
             setSavingTokenBalanceAmount(0n)
             setSavingStakeBalanceAmount(0n)
@@ -125,50 +133,50 @@ export function SavingPage() {
             return
         }
 
-        let isCurrent = true
+        try {
+            const [tokenBalanceAmount, maxStakeAmount, stakeBalanceAmount, unlockAt] = await Promise.all([
+                readErc20Balance(
+                    getAigoTokenAddress(),
+                    walletAddress as Address,
+                ),
+                readAigoProjectMaxAigoStake(),
+                readAigoProjectCurrentAigoStakeBalance(
+                    walletAddress as Address,
+                ),
+                readAigoProjectAigoUnlockAt(
+                    walletAddress as Address,
+                ),
+            ])
 
-        async function loadSavingContractData() {
-            try {
-                const [tokenBalanceAmount, maxStakeAmount, stakeBalanceAmount, unlockAt] = await Promise.all([
-                    readErc20Balance(
-                        getAigoTokenAddress(),
-                        walletAddress as Address,
-                    ),
-                    readAigoProjectMaxAigoStake(),
-                    readAigoProjectCurrentAigoStakeBalance(
-                        walletAddress as Address,
-                    ),
-                    readAigoProjectAigoUnlockAt(
-                        walletAddress as Address,
-                    ),
-                ])
+            if (isCurrent()) {
+                setSavingTokenBalanceAmount(tokenBalanceAmount)
+                setSavingMaxStakeAmount(maxStakeAmount)
+                setSavingStakeBalanceAmount(stakeBalanceAmount)
+                setSavingUnlockAt(unlockAt)
+                setSavingDataLoaded(true)
+            }
+        } catch (error) {
+            console.error('[saving:contract-data] failed', error)
 
-                if (isCurrent) {
-                    setSavingTokenBalanceAmount(tokenBalanceAmount)
-                    setSavingMaxStakeAmount(maxStakeAmount)
-                    setSavingStakeBalanceAmount(stakeBalanceAmount)
-                    setSavingUnlockAt(unlockAt)
-                    setSavingDataLoaded(true)
-                }
-            } catch (error) {
-                console.error('[saving:contract-data] failed', error)
-
-                if (isCurrent) {
-                    setSavingTokenBalanceAmount(0n)
-                    setSavingStakeBalanceAmount(0n)
-                    setSavingMaxStakeAmount(0n)
-                    setSavingUnlockAt(0n)
-                    setSavingDataLoaded(false)
-                }
+            if (isCurrent()) {
+                setSavingTokenBalanceAmount(0n)
+                setSavingStakeBalanceAmount(0n)
+                setSavingMaxStakeAmount(0n)
+                setSavingUnlockAt(0n)
+                setSavingDataLoaded(false)
             }
         }
+    }, [createSavingDataRequestGuard, walletAddress])
 
+    const handleSavingPullRefresh = useCallback(() => loadSavingContractData(), [loadSavingContractData])
+
+    usePageRefresh(handleSavingPullRefresh, !savingSubmitting)
+
+    useEffect(() => {
         void loadSavingContractData()
 
-        return () => {
-            isCurrent = false
-        }
-    }, [walletAddress, savingDataRefreshVersion])
+        return invalidateSavingDataRequest
+    }, [invalidateSavingDataRequest, loadSavingContractData])
 
     useEffect(() => {
         if (savingCountdownTargetTime === undefined) return undefined
@@ -275,7 +283,7 @@ export function SavingPage() {
             await waitForDappContractDataSync()
 
             handlePopupClose()
-            setSavingDataRefreshVersion((current) => current + 1)
+            await loadSavingContractData()
             message.success(t('操作成功'))
         } catch (error) {
             message.warning(getSavingErrorMessage(error))
