@@ -23,13 +23,17 @@ import { completeLogin, logout } from './session.ts'
 let removeDappLogoutCleanup: (() => void) | undefined
 let dappLoginAttempt = 0
 
-function handleDappAccountsChanged(): void {
+export function resetDappLoginAttempt(): void {
     dappLoginAttempt += 1
+}
+
+function handleDappAccountsChanged(): void {
+    resetDappLoginAttempt()
     logout()
 }
 
 function handleDappChainChanged(): void {
-    dappLoginAttempt += 1
+    resetDappLoginAttempt()
     logout()
 }
 

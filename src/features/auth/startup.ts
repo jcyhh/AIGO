@@ -10,7 +10,10 @@ import {
 } from '@/services/platform/index.ts'
 import { getToken } from '@/services/storage/index.ts'
 
-import { logout } from './session.ts'
+import {
+    clearAuthSession,
+    logout,
+} from './session.ts'
 
 export const AUTH_STARTUP_RESULT = {
     completed: 'completed',
@@ -35,7 +38,9 @@ async function resumeStoredDappSession(): Promise<void> {
         resumeStoredDappSessionPromise = (async () => {
             const { resumeDappAuthSession } = await import('./dapp.ts')
             await resumeDappAuthSession()
-        })()
+        })().finally(() => {
+            resumeStoredDappSessionPromise = undefined
+        })
     }
 
     return resumeStoredDappSessionPromise
@@ -61,6 +66,17 @@ async function startDappAuthFlow(token: string): Promise<void> {
     await loginWithDapp()
 }
 
+async function restartDappLoginAfterStoredSessionChange(): Promise<void> {
+    const {
+        loginWithDapp,
+        resetDappLoginAttempt,
+    } = await import('./dapp.ts')
+
+    resetDappLoginAttempt()
+    clearAuthSession()
+    await loginWithDapp()
+}
+
 function shouldSkipDelayedDappDetection(): boolean {
     return isFlutterHost() && !isDappProviderExpected()
 }
@@ -70,9 +86,8 @@ export async function initializeAuthenticatedDappSession(): Promise<AuthStartupR
 
     if (!token) return AUTH_STARTUP_RESULT.completed
 
-    await loadAuthenticatedUserProfile()
-
     if (APP_CONFIG.loginMode === APP_LOGIN_MODE.account) {
+        await loadAuthenticatedUserProfile()
         return AUTH_STARTUP_RESULT.completed
     }
 
@@ -88,6 +103,7 @@ export async function initializeAuthenticatedDappSession(): Promise<AuthStartupR
 
     try {
         await resumeStoredDappSession()
+        await loadAuthenticatedUserProfile()
     } catch {
         logout()
     }
@@ -121,6 +137,16 @@ export async function startAuthFlow(): Promise<AuthStartupResult> {
         try {
             await startDappAuthFlow(token)
         } catch {
+            if (token) {
+                try {
+                    await restartDappLoginAfterStoredSessionChange()
+                } catch {
+                    logout()
+                }
+
+                return AUTH_STARTUP_RESULT.completed
+            }
+
             logout()
         }
 

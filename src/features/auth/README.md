@@ -10,16 +10,16 @@ The local `TOKEN` is the single source of truth for authentication; the `user` S
 
 ## Entry flow
 
-The splash page calls `startAuthFlow()` to make the startup decision.
+The splash page waits for the opening logo animation, then calls `startAuthFlow()` to make the startup decision.
 
-开屏页调用 `startAuthFlow()` 统一处理启动分流。
+开屏页先等待 logo 开场动画结束，再调用 `startAuthFlow()` 统一处理启动分流。
 
 - `dapp` waits twice for an injected wallet provider, five seconds per attempt. If both attempts fail, the splash page remains visible and asks the user to open the DApp in a wallet browser.
 - `dapp` 会连续等待两次注入钱包 Provider，每次五秒；两次都失败时，保留开屏页并提示用户使用钱包环境打开。
 - `hybrid` waits once for a wallet provider, then falls back to account password login when no provider is found.
 - `hybrid` 只等待一次钱包 Provider，未检测到时降级为账号密码登录。
-- `account` never detects a wallet provider or shows a loading icon; it waits for the splash animation and then follows the token state.
-- `account` 不检测钱包 Provider，也不显示 loading；等待开屏动画后按 Token 状态继续。
+- `account` never detects a wallet provider or shows a loading icon; after the shared splash animation wait, it follows the token state.
+- `account` 不检测钱包 Provider，也不显示 loading；经过统一开屏动画等待后按 Token 状态继续。
 - Flutter hosts without `window.__EXPECT_DAPP_PROVIDER__` skip the delayed detection. When Flutter sets this marker before React starts, the same delayed wallet detection is used.
 - 未设置 `window.__EXPECT_DAPP_PROVIDER__` 的 Flutter 宿主会跳过延迟检测；Flutter 在 React 启动前设置该标识时，则使用相同的延迟钱包检测。
 - Existing token with a detected provider: restore the wallet session, validate the configured chain, then enter home.

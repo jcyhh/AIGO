@@ -11,6 +11,7 @@ test('page pull refresh exposes a no-copy dynamic refresh icon interaction', asy
         readFile('src/components/Icon/config.ts', 'utf8'),
     ])
     const source = `${component}\n${context}`
+    const iconWrapBlock = styles.match(/&__icon-wrap\s*\{([\s\S]*?)\n    \}/)?.[1] ?? ''
 
     assert.match(component, /export function PagePullRefresh/)
     assert.match(context, /export function usePageRefresh/)
@@ -38,6 +39,8 @@ test('page pull refresh exposes a no-copy dynamic refresh icon interaction', asy
     assert.match(source, /const opacityProgress = Math\.min\(pullDistance \/ PULL_REFRESH_OPACITY_DISTANCE, 1\)/)
     assert.match(source, /const rotationProgress = Math\.min\(pullDistance \/ PULL_REFRESH_TRIGGER_DISTANCE, 1\)/)
     assert.match(source, /PULL_REFRESH_MIN_LOADING_MS/)
+    assert.match(component, /className="page-pull-refresh__rotation flex-center size-72"/)
+    assert.match(component, /className="page-pull-refresh__spin flex-center size-72"/)
     assert.match(component, /<Icon name="refresh" className="page-pull-refresh__icon size-72" \/>/)
     assert.doesNotMatch(source, /style=/)
     assert.doesNotMatch(source, /下拉刷新|松开刷新|刷新中|刷新完成|刷新失败/)
@@ -53,9 +56,15 @@ test('page pull refresh exposes a no-copy dynamic refresh icon interaction', asy
     assert.match(styles, /&__icon-wrap[\s\S]*height:\s*112px;/)
     assert.match(styles, /&__icon-wrap[\s\S]*color:\s*var\(--app-btn-color\);/)
     assert.match(styles, /&__icon-wrap[\s\S]*background:\s*var\(--app-btn-bg\);/)
-    assert.match(styles, /&__icon[\s\S]*transform:\s*rotate\(var\(--page-pull-refresh-rotation,\s*0deg\)\)/)
-    assert.match(styles, /&--refreshing[\s\S]*page-pull-refresh-spin/)
+    assert.doesNotMatch(iconWrapBlock, /transform:/)
+    assert.match(styles, /&__rotation[\s\S]*transform:\s*rotate\(var\(--page-pull-refresh-rotation,\s*0deg\)\)/)
+    assert.doesNotMatch(styles, /&__spin[\s\S]*width:\s*72px;/)
+    assert.doesNotMatch(styles, /&__spin[\s\S]*height:\s*72px;/)
+    assert.match(styles, /&--refreshing &__spin[\s\S]*animation:\s*page-pull-refresh-spin 0\.8s linear infinite;/)
+    assert.doesNotMatch(styles, /&--refreshing &__icon[\s\S]*animation:\s*page-pull-refresh-spin/)
     assert.match(styles, /@keyframes page-pull-refresh-spin/)
+    assert.match(styles, /from\s*\{\s*transform:\s*rotate\(0deg\);\s*\}/)
+    assert.match(styles, /to\s*\{\s*transform:\s*rotate\(360deg\);\s*\}/)
 
     assert.match(entry, /export \{ PagePullRefresh \} from '\.\/PagePullRefresh\.tsx'/)
     assert.match(entry, /export \{ usePageRefresh \} from '\.\/context\.ts'/)

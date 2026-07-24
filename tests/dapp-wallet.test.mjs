@@ -83,7 +83,7 @@ function setupWalletTest(provider) {
 }
 
 test('connects through the injected window ethereum provider and stores wallet state', async () => {
-    const provider = createProvider()
+    const provider = createProvider({ accounts: [TEST_ADDRESS] })
     setupWalletTest(provider)
 
     const result = await connectDappWallet()
@@ -95,8 +95,30 @@ test('connects through the injected window ethereum provider and stores wallet s
     assert.equal(window.localStorage.getItem('WALLET_ADDRESS'), TEST_ADDRESS)
     assert.deepEqual(
         provider.requests.map((request) => request.method),
-        ['eth_accounts', 'eth_requestAccounts', 'eth_chainId'],
+        ['eth_accounts', 'eth_chainId'],
     )
+})
+
+test('continues directly after requesting account permission', async () => {
+    const provider = createProvider()
+    setupWalletTest(provider)
+
+    const originalSetTimeout = globalThis.setTimeout
+    globalThis.setTimeout = () => {
+        throw new Error('wallet connect should not schedule a settle timer')
+    }
+
+    try {
+        const result = await connectDappWallet()
+
+        assert.equal(result.address, TEST_ADDRESS)
+        assert.deepEqual(
+            provider.requests.map((request) => request.method),
+            ['eth_accounts', 'eth_requestAccounts', 'eth_chainId'],
+        )
+    } finally {
+        globalThis.setTimeout = originalSetTimeout
+    }
 })
 
 test('switches chain and adds the chain when the wallet does not know it', async () => {

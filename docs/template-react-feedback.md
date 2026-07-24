@@ -408,6 +408,24 @@
 - 当前项目处理：AIGO 已新增 `useLatestRequest()` 统一处理页面异步请求过期保护，存入、闪兑、权重和领取明细页不再各自维护 `requestRef + isCurrent()`；首页拆出 `useHomeScreenData()` 负责个人中心、余额、入金限制、动态/静态收益、订单分页、下拉刷新和 10 秒整屏刷新编排，页面只保留表单校验、弹窗和写入入口；首页重复 JSX 已拆为 `HomeCooperationCard`、`HomeIncomeCard` 和 `HomeOrderCard`。进行中订单的进度与可领取收益读取改为按订单并发读取，避免多订单时串行等待。
 - 验证结果：新增 `tests/page-request-optimization.test.mjs`，并更新首页、存入、闪兑、权重和领取明细页契约测试，约束公共请求守卫、首页数据 hook、首页卡片组件和订单合约读取并发化。完整 `pnpm test`、`pnpm lint` 和 `pnpm build` 均已通过。
 
+### TRF-042：DApp 已登录启动必须先校验当前钱包账号
+
+- 状态：已回灌
+- 实战场景：用户在钱包 DApp 浏览器或桌面 MetaMask 中完成登录后关闭网页，再到钱包里切换账号，随后重新打开项目域名。浏览器仍保留旧 token 和旧缓存 Address，但钱包当前账号已经变更。
+- 发现的问题：AIGO 启动层曾在校验当前钱包账号前先调用个人中心 `/api/users/my`，导致请求头继续携带旧 token 和旧 Address；随后恢复 DApp 会话发现缓存地址与当前钱包不一致并执行 `logout()`，但开屏页本轮启动流程已经结束，`hasStartedRef` 阻止再次触发登录，所以页面停在开屏页，只有刷新后才重新弹出钱包登录。
+- 建议方案：DApp 登录模式下，存在 token 时必须先检测钱包环境并恢复/校验当前钱包账号，确认缓存 Address 与当前账号一致后才能加载个人中心等鉴权接口。若恢复失败且当前处于开屏登录流程，应清理旧 token 和缓存 Address，并在同一轮流程里直接重新发起 `loginWithDapp()`，不要依赖路由回到开屏页后再次触发 effect。共享的恢复 Promise 必须在 settle 后释放，避免一次 rejected promise 让后续重试继续失败。
+- 当前项目处理：AIGO 已将 `initializeAuthenticatedDappSession()` 调整为账号密码模式才先加载个人中心；DApp 模式先 `resumeStoredDappSession()`，成功后再请求 `/my`。开屏页 `startAuthFlow()` 在旧 token 对应的钱包账号变化时，会 `clearAuthSession()` 清理旧态并立即重新调用 `loginWithDapp()`。`resumeStoredDappSessionPromise` 增加 `finally` 释放，`dappLoginAttempt` 的失效逻辑集中到 `resetDappLoginAttempt()`。
+- 验证结果：更新 `tests/auth-session.test.mjs`，约束 DApp 启动请求顺序、账号变化后即时重登、恢复 Promise 释放和签名请求失效逻辑。完整验证在本轮修复后执行。
+
+### TRF-043：开屏动画应作为认证启动统一门槛
+
+- 状态：已回灌
+- 实战场景：旧项目开屏 logo 有入场动画，用户进入页面后需要先完整展示开屏动画，再进入登录、钱包签名或已登录恢复逻辑。
+- 发现的问题：AIGO 曾只在账号密码模式等待开屏动画，DApp 模式会直接检测 Provider 并发起钱包登录；已有 token 的 App 顶层恢复也可能在开屏页动画结束前请求个人中心或恢复钱包会话。
+- 建议方案：模板应把开屏动画等待封装为页面级共享工具，开屏页的 `startAuthFlow()` 必须统一等待动画结束；App 顶层的已登录恢复若当前路径仍是开屏页，也应复用同一等待工具，避免旧 token 恢复抢在动画前执行。直接刷新业务页时不额外等待开屏动画。
+- 当前项目处理：AIGO 已新增 `src/pages/splash/animation.ts`，统一维护开屏动画时长、等待方法和开屏路由判断；`SplashPage` 与 App 顶层 DApp 会话恢复共同复用该工具。
+- 验证结果：更新 `tests/auth-session.test.mjs`，约束开屏页所有认证路径和 App 顶层恢复都必须先经过开屏动画门槛。
+
 ## 新反馈模板
 
 ### TRF-XXX：标题

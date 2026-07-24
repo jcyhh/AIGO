@@ -19,6 +19,7 @@ test('dapp production chain and transaction policies are project settings', () =
     assert.equal(typeof DAPP_CONFIG.enableGasEstimate, 'boolean')
     assert.equal(typeof DAPP_CONFIG.enableErc20MaxApprove, 'boolean')
     assert.equal(typeof DAPP_CONFIG.amountDecimals, 'number')
+    assert.doesNotMatch(source, /walletConnectSettleDelayMs/)
     assert.doesNotMatch(source, /VITE_DAPP_AMOUNT_DECIMALS/)
     assert.doesNotMatch(source, /VITE_MIN_GAS_BALANCE/)
     assert.doesNotMatch(source, /VITE_ENABLE_DAPP_GAS_CHECK/)

@@ -38,20 +38,29 @@
         backdrop-filter: blur(8px);
     }
 
-    &__icon {
+    &__rotation {
         transform: rotate(var(--page-pull-refresh-rotation, 0deg));
+        transform-origin: center;
+    }
+
+    &__spin {
+        transform-origin: center;
     }
 
     &--refreshing &__indicator {
         transform: translate3d(-50%, 72px, 0);
     }
 
-    &--refreshing &__icon {
+    &--refreshing &__spin {
         animation: page-pull-refresh-spin 0.8s linear infinite;
     }
 }
 
 @keyframes page-pull-refresh-spin {
+    from {
+        transform: rotate(0deg);
+    }
+
     to {
         transform: rotate(360deg);
     }

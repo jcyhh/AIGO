@@ -4,7 +4,19 @@ import {
 } from 'react'
 
 import { initializeAuthenticatedDappSession } from '../features/auth/startup.ts'
+import {
+    isSplashRoutePath,
+    waitForSplashAnimation,
+} from '../pages/splash/animation.ts'
 import { AppRouter } from '../router/index.ts'
+
+async function initializeAuthenticatedDappSessionAfterOpening(): Promise<void> {
+    if (isSplashRoutePath()) {
+        await waitForSplashAnimation()
+    }
+
+    await initializeAuthenticatedDappSession()
+}
 
 function AuthenticatedDappSessionBootstrap() {
     const hasStartedRef = useRef(false)
@@ -13,7 +25,7 @@ function AuthenticatedDappSessionBootstrap() {
         if (hasStartedRef.current) return
 
         hasStartedRef.current = true
-        void initializeAuthenticatedDappSession()
+        void initializeAuthenticatedDappSessionAfterOpening()
     }, [])
 
     return null

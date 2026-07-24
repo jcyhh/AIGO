@@ -20,6 +20,7 @@ import {
 } from '@/features/auth/startup.ts'
 import { ROUTE_PATH } from '@/router/routes.ts'
 
+import { waitForSplashAnimation } from './animation.ts'
 import { saveSplashReferralCode } from './referral.ts'
 import './SplashPage.scss'
 
@@ -27,14 +28,7 @@ type SplashRouteParams = {
     ref?: string
 }
 
-const SPLASH_ANIMATION_DURATION = 1000
 const appLogoUrl = `${APP_CONFIG.routeBase}brand/app-logo.png`
-
-function waitForSplashAnimation(): Promise<void> {
-    return new Promise((resolve) => {
-        window.setTimeout(resolve, SPLASH_ANIMATION_DURATION)
-    })
-}
 
 export function SplashPage() {
     const { t } = useTranslation()
@@ -58,10 +52,7 @@ export function SplashPage() {
         hasStartedRef.current = true
 
         async function startSplashAuthFlow(): Promise<void> {
-            if (APP_CONFIG.loginMode === APP_LOGIN_MODE.account) {
-                await waitForSplashAnimation()
-            }
-
+            await waitForSplashAnimation()
             const result = await startAuthFlow()
 
             if (result === AUTH_STARTUP_RESULT.walletRequired) {

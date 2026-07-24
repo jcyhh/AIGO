@@ -274,7 +274,11 @@ export function PagePullRefresh(props: PagePullRefreshProps) {
             >
                 <div ref={indicatorRef} className="page-pull-refresh__indicator" aria-hidden>
                     <div className="page-pull-refresh__icon-wrap flex-center">
-                        <Icon name="refresh" className="page-pull-refresh__icon size-72" />
+                        <div className="page-pull-refresh__rotation flex-center size-72">
+                            <div className="page-pull-refresh__spin flex-center size-72">
+                                <Icon name="refresh" className="page-pull-refresh__icon size-72" />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
