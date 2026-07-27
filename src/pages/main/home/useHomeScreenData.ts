@@ -360,7 +360,9 @@ export function useHomeScreenData(params: UseHomeScreenDataParams) {
                 const index = BigInt(order.index)
 
                 try {
-                    const [, claimableAmount] = await readAigoProjectPendingStaticRewards([index])
+                    const [, claimableAmount] = await readAigoProjectPendingStaticRewards([index], {
+                        account: walletAddress as Address,
+                    })
 
                     return {
                         order,
@@ -380,7 +382,7 @@ export function useHomeScreenData(params: UseHomeScreenDataParams) {
         )
 
         return orderRewards
-    }, [])
+    }, [walletAddress])
 
     const loadActiveOrderPendingStaticRewards = useCallback(async (
         orders: ApiOrder[],
@@ -389,7 +391,9 @@ export function useHomeScreenData(params: UseHomeScreenDataParams) {
         const indexes = sortHomeOrderIndexes(
             orders.map((order) => BigInt(order.index)),
         )
-        const staticRewardPromise = readAigoProjectPendingStaticRewards(indexes)
+        const staticRewardPromise = readAigoProjectPendingStaticRewards(indexes, {
+            account: walletAddress as Address,
+        })
         const orderRewardsPromise = readActiveOrderPendingStaticRewards(orders)
         const [staticRewardResult, orderRewards] = await Promise.allSettled([
             staticRewardPromise,
@@ -438,7 +442,7 @@ export function useHomeScreenData(params: UseHomeScreenDataParams) {
                 }
             }))
         }
-    }, [readActiveOrderPendingStaticRewards])
+    }, [readActiveOrderPendingStaticRewards, walletAddress])
 
     const loadHomeOrders = useCallback(async (
         status: HomeOrderStatus,

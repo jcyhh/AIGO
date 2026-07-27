@@ -29,6 +29,7 @@ import type {
 
 export async function readDappContract<TResult = unknown, TAbi extends Abi = Abi>({
     address,
+    account,
     abi,
     functionName,
     args = [],
@@ -38,6 +39,7 @@ export async function readDappContract<TResult = unknown, TAbi extends Abi = Abi
 
     const result = await walletClient.readContract({
         address,
+        account,
         abi,
         functionName,
         args,

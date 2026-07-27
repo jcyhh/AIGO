@@ -35,6 +35,7 @@ export interface DappWalletListenerOptions {
 
 export interface DappContractReadParams<TAbi extends Abi = Abi> {
     address: Address
+    account?: Address
     abi: TAbi
     functionName: string
     args?: readonly unknown[]

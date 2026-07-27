@@ -145,6 +145,7 @@ function readAigoProject<TResult>(
 ): Promise<TResult> {
     return readDappContract<TResult>({
         address: getAigoProjectContractAddress(options),
+        account: options.account,
         abi: AIGO_PROJECT_ABI,
         functionName,
         args,

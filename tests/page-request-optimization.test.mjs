@@ -48,7 +48,7 @@ test('home screen data hook parallelizes independent active order contract reads
 
     assert.match(hook, /Promise\.all\(\s*orders\.map\(async \(order\): Promise<ActiveOrderProgressResult> =>/)
     assert.match(hook, /Promise\.all\(\s*orders\.map\(async \(order\): Promise<ActiveOrderStaticRewardResult> =>/)
-    assert.match(hook, /readAigoProjectPendingStaticRewards\(\[index\]\)/)
+    assert.match(hook, /readAigoProjectPendingStaticRewards\(\[index\],\s*\{\s*account: walletAddress as Address,?\s*\}\)/)
     assert.match(hook, /readAigoProjectOrder\(/)
     assert.doesNotMatch(hook, /for \(const order of orders\) \{\s*const index = BigInt\(order\.index\)[\s\S]*await readAigoProjectOrder/)
     assert.doesNotMatch(hook, /for \(const order of orders\) \{\s*const indexes = \[BigInt\(order\.index\)\][\s\S]*await readAigoProjectPendingStaticRewards/)

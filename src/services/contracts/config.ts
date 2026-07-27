@@ -7,6 +7,7 @@ export type ProjectContractEnv = Partial<Record<string, string>>
 
 export interface ProjectContractReadOptions {
     contractAddress?: Address
+    account?: Address
 }
 
 export interface ProjectContractWriteOptions extends DappContractWriteOptions {

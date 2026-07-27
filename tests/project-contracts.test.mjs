@@ -55,6 +55,24 @@ test('contract reads print source-labelled debug data', async () => {
     assert.match(contractsReadme, /合约读取调试日志/)
 })
 
+test('static reward reads preserve the connected account as the eth_call sender', async () => {
+    const [typesSource, contractSource, configSource, aigoSource, homeSource] = await Promise.all([
+        readFile('src/services/dapp/types.ts', 'utf8'),
+        readFile('src/services/dapp/contract.ts', 'utf8'),
+        readFile('src/services/contracts/config.ts', 'utf8'),
+        readFile('src/services/contracts/aigoProject.ts', 'utf8'),
+        readFile('src/pages/main/home/useHomeScreenData.ts', 'utf8'),
+    ])
+
+    assert.match(typesSource, /account\?: Address/)
+    assert.match(contractSource, /account,[\s\S]*\}: DappContractReadParams/)
+    assert.match(contractSource, /walletClient\.readContract\(\{[\s\S]*account,/)
+    assert.match(configSource, /export interface ProjectContractReadOptions \{[\s\S]*account\?: Address/)
+    assert.match(aigoSource, /account: options\.account/)
+    assert.match(homeSource, /readAigoProjectPendingStaticRewards\(\[index\],\s*\{\s*account: walletAddress as Address,?\s*\}\)/)
+    assert.match(homeSource, /readAigoProjectPendingStaticRewards\(indexes,\s*\{\s*account: walletAddress as Address,?\s*\}\)/)
+})
+
 test('contract writes print source-labelled parameters when they fail', async () => {
     const [contractSource, contractDebugSource, aigoSource, laxSource] = await Promise.all([
         readFile('src/services/dapp/contract.ts', 'utf8'),

@@ -85,7 +85,7 @@ test('home page delegates data orchestration and card rendering to focused modul
     assert.match(hook, /homeScreenRefreshLifecycleRef\.current \+= 1[\s\S]*stopHomeScreenRefreshTimer\(\)[\s\S]*invalidateHomeScreenRequests\(\)/)
     assert.match(hook, /Promise\.all\(\s*orders\.map\(async \(order\): Promise<ActiveOrderProgressResult> =>/)
     assert.match(hook, /Promise\.all\(\s*orders\.map\(async \(order\): Promise<ActiveOrderStaticRewardResult> =>/)
-    assert.match(hook, /readAigoProjectPendingStaticRewards\(\[index\]\)/)
+    assert.match(hook, /readAigoProjectPendingStaticRewards\(\[index\],\s*\{\s*account: walletAddress as Address,?\s*\}\)/)
     assert.match(hook, /readAigoProjectOrder\(/)
 
     assert.match(constants, /export const HOME_ORDER_STATUS_LIST: readonly HomeOrderStatus\[\] = \['active', 'completed'\]/)
