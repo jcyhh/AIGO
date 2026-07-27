@@ -295,10 +295,10 @@ export function SavingPage() {
     return (
         <section className="saving-page" data-page="saving">
             <ContractLoading show={savingSubmitting} />
-            <img src={bg} className="saving-page__bg" />
+            <img src={bg} className="saving-page__bg animate__animated" />
 
             <div className="saving-page__content rel">
-                <section className="saving-page__card tc">
+                <section className="saving-page__card tc animate__animated animate__slideInLeft">
                     <img src={cardBg} className="saving-page__card-bg" />
 
                     <div className="saving-page__card-content rel flex flex-column items-center justify-center pt-60 pb-60">

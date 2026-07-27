@@ -342,7 +342,12 @@ export function HomePage() {
     return (
         <section className="home-page" data-page="home">
             <ContractLoading show={homeDepositSubmitting || homeOrderClaimSubmitting || homeDynamicRewardClaimSubmitting} />
-            <img src={bg} className="home-page__bg vw-100" alt="" />
+            <div className="home-page__bg vw-100" aria-hidden="true">
+                <div className="home-page__bg-track">
+                    <img src={bg} className="home-page__bg-image" alt="" />
+                    <img src={bg} className="home-page__bg-image" alt="" />
+                </div>
+            </div>
             <img src={aiPic} className="home-page__hero" alt="" />
 
             <div className="home-page__content container rel">

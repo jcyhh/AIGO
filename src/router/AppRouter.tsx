@@ -2,7 +2,6 @@ import {
     useEffect,
 } from 'react'
 import {
-    BrowserRouter,
     Navigate,
     Outlet,
     Route,
@@ -17,8 +16,8 @@ import { SHOWCASE_ROUTE_ELEMENTS } from '@/showcase/router/index.ts'
 import { LoginPage } from '@/pages/auth/index.ts'
 import { useUserStore } from '@/stores/user/store.ts'
 
+import { AppBrowserRouter } from './AppBrowserRouter.tsx'
 import { registerAppRouteReplacer } from './bridge.ts'
-import { APP_ROUTER_BASENAME } from './config.ts'
 import { ROUTE_PATH } from './routes.ts'
 
 function RouterNavigationBridge() {
@@ -51,7 +50,7 @@ function PullRefreshRouteOutlet() {
 
 export function AppRouter() {
     return (
-        <BrowserRouter basename={APP_ROUTER_BASENAME}>
+        <AppBrowserRouter>
             <RouterNavigationBridge />
             <Routes>
                 <Route path={ROUTE_PATH.root} element={<SplashPage />} />
@@ -74,6 +73,6 @@ export function AppRouter() {
 
                 <Route path="*" element={<Navigate to={ROUTE_PATH.root} replace />} />
             </Routes>
-        </BrowserRouter>
+        </AppBrowserRouter>
     )
 }

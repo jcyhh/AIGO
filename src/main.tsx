@@ -5,6 +5,20 @@ import './styles/index.scss'
 import App from './app/App.tsx'
 import { initializeI18n } from './i18n/index.ts'
 
+const noopConsole = () => undefined
+
+function disableProductionConsole(): void {
+    if (!import.meta.env.PROD) {
+        return
+    }
+
+    console.log = noopConsole
+    console.warn = noopConsole
+    console.error = noopConsole
+    console.debug = noopConsole
+    console.info = noopConsole
+}
+
 async function bootstrap(): Promise<void> {
     await initializeI18n()
 
@@ -14,5 +28,7 @@ async function bootstrap(): Promise<void> {
         </StrictMode>,
     )
 }
+
+disableProductionConsole()
 
 void bootstrap()

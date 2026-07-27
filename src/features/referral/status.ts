@@ -1,6 +1,5 @@
 import type { Address } from 'viem'
 
-import { buildRouteHref } from '../../router/navigation.ts'
 import { ROUTE_PATH } from '../../router/routes.ts'
 import { readAigoProjectIsReferralBound } from '../../services/contracts/aigoProject.ts'
 import { getWalletAddress } from '../../services/storage/common.ts'
@@ -56,7 +55,7 @@ export function buildReferralInviteLink(
         encodeURIComponent(value),
     )
 
-    return `${origin}${buildRouteHref(referralPath)}`
+    return `${origin}${referralPath}`
 }
 
 export async function syncReferralBoundState({

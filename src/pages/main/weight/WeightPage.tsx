@@ -40,6 +40,7 @@ type WeightAssetCurrency = WeightClaimCurrency | 'dividend_token'
 interface WeightAssetConfigBase {
     titleKey: string
     symbolKey: string
+    tabAnimationClassName: string
     ccy: WeightAssetCurrency
     balanceField: WeightBalanceField
     insufficientMessageKey: string
@@ -72,6 +73,7 @@ const WEIGHT_ASSET_CONFIG: Record<WeightAssetType, WeightAssetConfig> = {
     xo: {
         titleKey: 'weight.asset.xo',
         symbolKey: 'weight.asset.xo',
+        tabAnimationClassName: 'animate__animated animate__slideInLeft',
         ccy: 'balance_xo',
         balanceField: 'balance_xo',
         insufficientMessageKey: 'weight.claim.insufficientXo',
@@ -82,6 +84,7 @@ const WEIGHT_ASSET_CONFIG: Record<WeightAssetType, WeightAssetConfig> = {
     weight: {
         titleKey: 'weight.asset.weight',
         symbolKey: 'weight.asset.weight',
+        tabAnimationClassName: 'animate__animated animate__slideInRight',
         ccy: 'dividend_token',
         balanceField: 'dividend_token',
         insufficientMessageKey: 'weight.claim.insufficientWeight',
@@ -377,8 +380,8 @@ export function WeightPage() {
                         const config = WEIGHT_ASSET_CONFIG[assetType]
                         const isActive = assetType === activeWeightAssetType
                         const tabClassName = isActive
-                            ? 'weight-page__tab weight-page__tab--active flex-center'
-                            : 'weight-page__tab flex-center'
+                            ? `weight-page__tab weight-page__tab--active flex-center ${config.tabAnimationClassName}`
+                            : `weight-page__tab flex-center ${config.tabAnimationClassName}`
 
                         return (
                             <button

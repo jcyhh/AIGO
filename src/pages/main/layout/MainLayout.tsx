@@ -6,7 +6,7 @@ import {
     LAYOUT_MENU_TYPE,
     type LayoutMenuType,
 } from '@/router/config'
-import { ROUTE_PATH } from '@/router/routes'
+import { ROUTE_PATH, type RoutePath } from '@/router/routes'
 
 import { HeaderBar } from './HeaderBar/HeaderBar.tsx'
 import { HEADER_BAR_BACKGROUND_TYPE } from './HeaderBar/config.ts'
@@ -18,6 +18,11 @@ type MainLayoutProps = {
     menuType?: LayoutMenuType
 }
 
+const transparentHeaderPaths = new Set<RoutePath>([
+    ROUTE_PATH.home,
+    ROUTE_PATH.saving,
+])
+
 export function MainLayout({
     menuType = DEFAULT_LAYOUT_MENU_TYPE,
 }: MainLayoutProps) {
@@ -25,7 +30,7 @@ export function MainLayout({
     const [showSidebarMenu, setShowSidebarMenu] = useState(false)
     const isSidebarLayout = menuType === LAYOUT_MENU_TYPE.sidebar
     const isTabbarLayout = menuType === LAYOUT_MENU_TYPE.tabbar
-    const headerBackgroundType = location.pathname === ROUTE_PATH.home
+    const headerBackgroundType = transparentHeaderPaths.has(location.pathname as RoutePath)
         ? HEADER_BAR_BACKGROUND_TYPE.scrollOpacity
         : HEADER_BAR_BACKGROUND_TYPE.solid
     const showHeaderGap = headerBackgroundType !== HEADER_BAR_BACKGROUND_TYPE.scrollOpacity

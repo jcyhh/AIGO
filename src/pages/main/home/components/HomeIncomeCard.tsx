@@ -29,7 +29,7 @@ export function HomeIncomeCard(props: HomeIncomeCardProps) {
     const { t } = useTranslation()
 
     return (
-        <section className="home-page__income-card mt-30">
+        <section className="home-page__income-card mt-30 animate__animated animate__slideInLeft">
             <div className="home-page__income-static flex-between">
                 <div className="flex items-center">
                     <img src={incomeIcon} className="img-76 flex-none" />

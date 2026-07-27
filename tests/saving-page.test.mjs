@@ -61,7 +61,7 @@ test('saving page connects piggy bank reads and contract write workflows', async
     assert.match(page, /async function handleConfirmSavingAction\(\) \{[\s\S]*if \(!activeAction \|\| savingSubmitting\) return[\s\S]*setSavingSubmitting\(true\)[\s\S]*await submitSavingDeposit\(\{[\s\S]*amount,[\s\S]*walletAddress: walletAddress as Address,[\s\S]*\}\)[\s\S]*await submitSavingWithdraw\(amount\)[\s\S]*await waitForDappContractDataSync\(\)[\s\S]*await loadSavingContractData\(\)[\s\S]*message\.success\(t\('操作成功'\)\)[\s\S]*setSavingSubmitting\(false\)/)
     assert.match(page, /<ContractLoading show=\{savingSubmitting\} \/>/)
     assert.match(page, /<section className="saving-page"/)
-    assert.match(page, /<img src=\{bg\} className="saving-page__bg"/)
+    assert.match(page, /<img src=\{bg\} className="saving-page__bg(?: [^"]*)?"/)
     assert.match(page, /<img src=\{cardBg\} className="saving-page__card-bg"/)
     assert.match(page, /<img src=\{aigoTokenIconUrl\} className="img-48 flex-none"/)
     assert.match(page, /PROJECT_TOKEN\.platform\.symbol/)

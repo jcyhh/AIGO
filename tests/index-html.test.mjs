@@ -4,6 +4,7 @@ import { existsSync, readFileSync } from 'node:fs'
 
 const indexHtml = readFileSync('index.html', 'utf8')
 const viteConfig = readFileSync('vite.config.ts', 'utf8')
+const mainSource = readFileSync('src/main.tsx', 'utf8')
 
 test('index html keeps the mobile H5 meta baseline', () => {
     const viewportMatches = indexHtml.match(/<meta\s+name="viewport"/g) ?? []
@@ -54,4 +55,14 @@ test('vite config injects social share meta only when the env switch is enabled'
     assert.match(viteConfig, /tag: 'link'/)
     assert.match(viteConfig, /createPropertyMetaTag\('og:type', 'website'\)/)
     assert.match(viteConfig, /createMetaTag\('twitter:card', 'summary_large_image'\)/)
+})
+
+test('main entry disables console output in production only', () => {
+    assert.match(mainSource, /import\.meta\.env\.PROD/)
+    assert.match(mainSource, /disableProductionConsole\(\)/)
+    assert.match(mainSource, /console\.log = noopConsole/)
+    assert.match(mainSource, /console\.warn = noopConsole/)
+    assert.match(mainSource, /console\.error = noopConsole/)
+    assert.match(mainSource, /console\.debug = noopConsole/)
+    assert.match(mainSource, /console\.info = noopConsole/)
 })

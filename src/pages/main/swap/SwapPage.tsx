@@ -394,12 +394,13 @@ export function SwapPage() {
         <section className="swap-page" data-page="swap">
             <ContractLoading show={swapSubmitting} />
             <img src={bg} className="swap-page__bg" />
+            <div className="swap-page__energy-sweep" aria-hidden="true" />
 
             <div className="swap-page__content rel pt-68 pr-30 pb-60 pl-30">
                 <h1 className="swap-page__title size-56 bold-5 tc">{t('Swap assets')}</h1>
 
                 <div className="swap-page__exchange rel mt-40">
-                    <div className="swap-page__exchange-card swap-page__exchange-card--from">
+                    <div className="swap-page__exchange-card swap-page__exchange-card--from animate__animated animate__slideInRight">
                         <div className="flex-between items-center size-24">
                             <span className="opc-5">{t('从')}</span>
                             <div className="flex items-center">
@@ -433,10 +434,10 @@ export function SwapPage() {
                     </div>
 
                     <div className="swap-page__switch-icon flex-center">
-                        <img src={swapIcon} className="img-108" />
+                        <img src={swapIcon} className="img-108 animate__animated animate__zoomIn ani-delay-10 ani-5" />
                     </div>
 
-                    <div className="swap-page__exchange-card swap-page__exchange-card--to mt-28">
+                    <div className="swap-page__exchange-card swap-page__exchange-card--to mt-28 animate__animated animate__slideInLeft">
                         <div className="size-24 opc-5">{t('到')}</div>
 
                         <div className="flex-between items-center mt-48">

@@ -97,12 +97,12 @@ test('referral status sync prints diagnostics when isReferralBound cannot be rea
     })
 })
 
-test('referral invite link uses the current origin and the h5 referral route', () => {
+test('referral invite link uses the current origin and the short root referral route', () => {
     const walletAddress = '0x0000000000000000000000000000000000000001'
 
     assert.equal(
         buildReferralInviteLink(walletAddress, 'https://aigo.test'),
-        `https://aigo.test/h5/ref/${walletAddress}`,
+        `https://aigo.test/ref/${walletAddress}`,
     )
     assert.equal(
         buildReferralInviteLink('', 'https://aigo.test'),

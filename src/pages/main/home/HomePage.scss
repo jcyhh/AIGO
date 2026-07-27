@@ -1,4 +1,7 @@
 .home-page {
+    --home-bg-loop-height: 1380px;
+    --home-bg-seam-overlap: 360px;
+
     position: relative;
     min-height: 3000px;
     overflow: hidden;
@@ -8,7 +11,40 @@
         position: absolute;
         top: 0;
         left: 0;
-        height: auto;
+        height: var(--home-bg-loop-height);
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    &__bg-track {
+        transform: translate3d(0, calc(-1 * (var(--home-bg-loop-height) - var(--home-bg-seam-overlap))), 0);
+        animation: home-page-bg-scroll 18s linear infinite;
+        will-change: transform;
+    }
+
+    &__bg-image {
+        display: block;
+        width: 100%;
+        height: var(--home-bg-loop-height);
+        object-fit: cover;
+        -webkit-mask-image: linear-gradient(
+            to bottom,
+            transparent 0,
+            #000 14%,
+            #000 74%,
+            transparent 100%
+        );
+        mask-image: linear-gradient(
+            to bottom,
+            transparent 0,
+            #000 14%,
+            #000 74%,
+            transparent 100%
+        );
+    }
+
+    &__bg-image + &__bg-image {
+        margin-top: calc(-1 * var(--home-bg-seam-overlap));
     }
 
     &__hero {
@@ -17,6 +53,9 @@
         left: 46px;
         width: 658px;
         height: 658px;
+        transform-origin: center;
+        animation: home-page-hero-float 4.8s ease-in-out infinite;
+        will-change: transform, filter;
     }
 
     &__content {
@@ -189,4 +228,42 @@
         cursor: pointer;
     }
 
+}
+
+@keyframes home-page-bg-scroll {
+    0% {
+        transform: translate3d(0, calc(-1 * (var(--home-bg-loop-height) - var(--home-bg-seam-overlap))), 0);
+    }
+
+    100% {
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes home-page-hero-float {
+    0%,
+    100% {
+        transform: translate3d(0, 0, 0) scale(1);
+        filter:
+            drop-shadow(0 0 14px rgba(0, 144, 255, 0.32))
+            drop-shadow(0 0 28px rgba(0, 216, 255, 0.18));
+    }
+
+    50% {
+        transform: translate3d(0, -18px, 0) scale(1.018);
+        filter:
+            drop-shadow(0 0 24px rgba(0, 216, 255, 0.72))
+            drop-shadow(0 0 54px rgba(0, 118, 255, 0.58));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .home-page__bg-track {
+        transform: translate3d(0, calc(-1 * (var(--home-bg-loop-height) - var(--home-bg-seam-overlap))), 0);
+        animation: none;
+    }
+
+    .home-page__hero {
+        animation: none;
+    }
 }

@@ -41,7 +41,7 @@ export function HomeCooperationCard(props: HomeCooperationCardProps) {
     })
 
     return (
-        <div className="home-page__cooperation-card">
+        <div className="home-page__cooperation-card animate__animated animate__slideInRight">
             <div className="home-page__card-title flex-center pt-40">
                 <img
                     src={lightLeft}

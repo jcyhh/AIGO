@@ -53,14 +53,17 @@ test('header menu icon only renders in sidebar layout mode', async () => {
     assert.match(layout, /onSidebarMenuClick=\{handleOpenSidebarMenu\}/)
 })
 
-test('main layout uses the scroll-opacity header background only on the home route', async () => {
+test('main layout uses the home header background on home and saving routes', async () => {
     const layout = await readFile('src/pages/main/layout/MainLayout.tsx', 'utf8')
 
     assert.match(layout, /import \{ Outlet, useLocation \} from 'react-router'/)
-    assert.match(layout, /import \{ ROUTE_PATH \} from '@\/router\/routes'/)
+    assert.match(layout, /import \{ ROUTE_PATH, type RoutePath \} from '@\/router\/routes'/)
     assert.match(layout, /HEADER_BAR_BACKGROUND_TYPE/)
     assert.match(layout, /const location = useLocation\(\)/)
-    assert.match(layout, /location\.pathname === ROUTE_PATH\.home/)
+    assert.match(layout, /const transparentHeaderPaths = new Set<RoutePath>\(\[/)
+    assert.match(layout, /ROUTE_PATH\.home/)
+    assert.match(layout, /ROUTE_PATH\.saving/)
+    assert.match(layout, /transparentHeaderPaths\.has\(location\.pathname as RoutePath\)/)
     assert.match(layout, /headerBackgroundType/)
     assert.match(layout, /HEADER_BAR_BACKGROUND_TYPE\.scrollOpacity/)
     assert.match(layout, /HEADER_BAR_BACKGROUND_TYPE\.solid/)

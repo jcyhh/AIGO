@@ -426,6 +426,15 @@
 - 当前项目处理：AIGO 已新增 `src/pages/splash/animation.ts`，统一维护开屏动画时长、等待方法和开屏路由判断；`SplashPage` 与 App 顶层 DApp 会话恢复共同复用该工具。
 - 验证结果：更新 `tests/auth-session.test.mjs`，约束开屏页所有认证路径和 App 顶层恢复都必须先经过开屏动画门槛。
 
+### TRF-044：React H5 history 路由应兼容无 basename 的服务端 fallback
+
+- 状态：计划回灌
+- 实战场景：部分 H5 站点生产部署在 `/h5/` 目录下，但后端为了根域名和短邀请链接美观，会把 `/`、`/ref/...` 和 `/h5/...` 都直接返回同一份 `index.html`，不返回 `Location: /h5/...` 的 HTTP 重定向。Vue Router 的 `createWebHistory('/h5/')` 在当前 URL 不带 base 时仍能匹配 `/` 或 `/ref/...`，但 React Router 的 `basename="/h5"` 会直接拒绝渲染。
+- 发现的问题：AIGO 线上 `https://www.cxaigo.net/` 返回 `HTTP 200` 且无重定向，HTML 资源路径为 `/h5/assets/...`。React Router 报 `<Router basename="/h5"> is not able to match the URL "/"`，导致根路径白屏；同类 Vue 项目虽然服务端也是无重定向 fallback，但前端路由更宽松，所以没有暴露问题。
+- 建议方案：模板不要直接使用严格的 `<BrowserRouter basename="/h5">`。应封装项目级 `AppBrowserRouter`：读取浏览器 location 时先剥离可选 `/h5`，让 `/`、`/ref/...`、`/h5/`、`/h5/ref/...` 都映射到同一套内部路由；应用内 `Link`、`useNavigate()` 和 helper 生成真实浏览器地址时再补回 `/h5`。短邀请链接仍由业务分享逻辑生成 `/ref/...`，不强制变长。
+- 当前项目处理：AIGO 新增 `src/router/AppBrowserRouter.tsx` 和 `src/router/appBrowserHistory.ts`，`AppRouter` 不再直接使用 `BrowserRouter basename="/h5"`。路由匹配同时兼容有无 `/h5` 前缀，应用内跳转继续生成 `/h5/...`。
+- 验证结果：新增 `tests/app-browser-history.test.mjs`，覆盖根路径、短邀请路径、已有 `/h5` 路径、应用内跳转补 base、search/hash 保留。完整 `pnpm build` 已通过。
+
 ## 新反馈模板
 
 ### TRF-XXX：标题

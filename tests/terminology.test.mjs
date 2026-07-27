@@ -1,23 +1,30 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { readFile } from 'node:fs/promises'
-import { execFile } from 'node:child_process'
-import { promisify } from 'node:util'
+import { readdir, readFile } from 'node:fs/promises'
+import { extname, join } from 'node:path'
 
-const execFileAsync = promisify(execFile)
+const firstPartySourceExtensions = new Set(['.ts', '.tsx', '.scss', '.json', '.md'])
+const excludedSourceDirectories = new Set(['vendor', 'third-party'])
+
+async function listFirstPartySourceFiles(directory) {
+    const entries = await readdir(directory, { withFileTypes: true })
+    const nestedFiles = await Promise.all(entries.map(async (entry) => {
+        const entryPath = join(directory, entry.name)
+
+        if (entry.isDirectory()) {
+            if (directory === 'src' && excludedSourceDirectories.has(entry.name)) return []
+
+            return listFirstPartySourceFiles(entryPath)
+        }
+
+        return firstPartySourceExtensions.has(extname(entry.name)) ? [entryPath] : []
+    }))
+
+    return nestedFiles.flat()
+}
 
 test('first-party UI source uses the unified extraction term', async () => {
-    const { stdout } = await execFileAsync('rg', [
-        '--files',
-        'src',
-        '-g',
-        '*.{ts,tsx,scss,json,md}',
-        '-g',
-        '!src/vendor/**',
-        '-g',
-        '!src/third-party/**',
-    ])
-    const files = stdout.trim().split('\n').filter(Boolean)
+    const files = await listFirstPartySourceFiles('src')
 
     const matches = await Promise.all(files.map(async (file) => {
         const source = await readFile(file, 'utf8')

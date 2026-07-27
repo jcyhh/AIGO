@@ -243,8 +243,10 @@ test('project contract env files keep only frontend-used contract addresses', as
     assert.match(developmentEnv, /VITE_AIGO_PROJECT_PROXY = 0x0165878A594ca255338adfa4d48449f69242Eb8F/)
     assert.match(developmentEnv, /VITE_AIGO_TOKEN = 0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9/)
     assert.match(developmentEnv, /VITE_USDT = 0x5fbdb2315678afecb367f032d93f642f64180aa3/)
-    assert.match(productionEnv, /VITE_AIGO_PROJECT_PROXY =\s*(?:\n|$)/)
-    assert.match(productionEnv, /VITE_LAX_PROJECT =\s*(?:\n|$)/)
+    assert.match(productionEnv, /VITE_BASE_URL =\s*(?:\n|$)/)
+    assert.match(productionEnv, /VITE_RPC_URL =\s*(?:\n|$)/)
+    assert.match(productionEnv, /VITE_AIGO_PROJECT_PROXY =(?: 0x[a-fA-F0-9]{40})?\s*(?:\n|$)/)
+    assert.match(productionEnv, /VITE_LAX_PROJECT =(?: 0x[a-fA-F0-9]{40})?\s*(?:\n|$)/)
     assert.match(viteEnv, /readonly VITE_AIGO_PROJECT_PROXY: string/)
     assert.match(viteEnv, /readonly VITE_LAX_PROJECT: string/)
 
