@@ -35,7 +35,7 @@ export function HomeOrderCard(props: HomeOrderCardProps) {
             <div className="home-page__order-progress mt-40">
                 <div className="home-page__order-progress-copy flex items-center flex-wrap gap-10 word-break size-24">
                     <span className="opc-5">
-                        {t('进度({{multiple}}倍)', { multiple: order.progressMultipleText })}
+                        {t('进度({{multiple}}x)', { multiple: order.progressMultipleText })}
                     </span>
                     {order.progressLoading ? (
                         <Icon name="loading" className="size-24 blue" ariaLabel={t('订单进度加载中')} />
