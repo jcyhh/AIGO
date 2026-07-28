@@ -27,7 +27,7 @@ export function HomeOrderCard(props: HomeOrderCardProps) {
                 <span>{order.dateText}</span>
             </div>
 
-            <div className="home-page__order-amount flex items-center word-break mt-20">
+            <div className="home-page__order-amount flex items-center word-break mt-40">
                 <img src={usdtIcon} className="img-48 flex-none" />
                 <div className="size-40 bold-6 ml-10">{order.amountText}</div>
             </div>
@@ -51,7 +51,7 @@ export function HomeOrderCard(props: HomeOrderCardProps) {
                 <ProgressBar
                     currentValue={order.progressCurrentValue}
                     totalValue={order.progressTotalValue}
-                    className="home-page__order-progress-bar mt-20"
+                    className="home-page__order-progress-bar mt-40"
                     aria-label={t('订单进度')}
                 />
             </div>
