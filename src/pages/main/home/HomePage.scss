@@ -201,12 +201,12 @@
         padding: 30px;
     }
 
-    &__order-summary {
-        min-width: 0;
+    &__order-progress {
+        width: 100%;
     }
 
-    &__order-progress {
-        width: 200px;
+    &__order-progress-copy {
+        min-width: 0;
     }
 
     &__order-progress-bar {
