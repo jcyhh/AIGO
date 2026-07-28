@@ -22,7 +22,7 @@ Update every enabled project locale for the new confirmation key. Update termino
 
 The production site currently serves the same hashed JavaScript and CSS assets as the local production build. The blank-popup screenshot therefore is not explained by an outdated deployment.
 
-The diagnostic follow-up will reproduce the home reward confirmation inside a wallet browser or an equivalent injected-wallet runtime, inspect the modal DOM and console output, and distinguish a mobile wallet WebView cache/runtime issue from an application rendering bug. No speculative CSS change will be made before this is reproduced.
+The mobile wallet WebView renders the title, message, and confirmation button in the DOM, but the `gradient-card` border `::before` pseudo-element overlays them. Its mask does not reliably exclude the card centre in that WebView. Keep the pseudo-element at stacking level `0` and explicitly place direct card content at level `1` within an isolated stacking context. This preserves the gradient border while keeping all modal content visible across browser engines.
 
 ## Verification
 
