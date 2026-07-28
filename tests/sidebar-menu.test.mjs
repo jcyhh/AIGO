@@ -91,6 +91,8 @@ test('sidebar menu displays the total team KPI as the evangelism value', () => {
     assert.match(sidebarSource, /setTotalTeamKpiText\(formatAmount\(statistics\.total_team_kpi\)\)/)
     assert.match(sidebarSource, /setTotalTeamKpiText\('0\.00'\)/)
     assert.match(sidebarSource, /app-sidebar-kpi mt-30/)
+    assert.match(sidebarSource, /className="app-sidebar-kpi__value size-40 bold-7 word-break"/)
+    assert.doesNotMatch(sidebarSource, /app-sidebar-kpi__value size-40 bold-7 tc/)
     assert.match(sidebarSource, /\{totalTeamKpiText\}/)
     assert.match(sidebarSource, /\{t\('布道值\(USDT\)'\)\}/)
     assert.match(sidebarSource, /app-sidebar-invite mt-30/)

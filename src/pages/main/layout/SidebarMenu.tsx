@@ -202,7 +202,7 @@ export function SidebarMenu({
                 </div>
 
                 <section className="app-sidebar-kpi mt-30">
-                    <div className="app-sidebar-kpi__value size-40 bold-7 tc word-break">
+                    <div className="app-sidebar-kpi__value size-40 bold-7 word-break">
                         {totalTeamKpiText}
                     </div>
                     <div className="app-sidebar-kpi__label size-24 opc-5 mt-12">
