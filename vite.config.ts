@@ -92,6 +92,9 @@ export default defineConfig(({ mode }) => {
                 '@': '/src',
             },
         },
+        build: {
+            cssMinify: 'esbuild',
+        },
         css: {
             preprocessorOptions: {
                 scss: {

@@ -100,6 +100,12 @@ test('vite injects global SCSS mixins into every style file', () => {
     assert.match(viteConfig, /@use "@\/styles\/mixins\.scss" as \*/)
 })
 
+test('vite preserves standard CSS properties in production styles', () => {
+    const viteConfig = readFileSync('vite.config.ts', 'utf8')
+
+    assert.match(viteConfig, /cssMinify:\s*'esbuild'/)
+})
+
 test('postcss keeps the mobile 750px design draft adapter', () => {
     const packageJson = JSON.parse(readFileSync('package.json', 'utf8'))
     const postcssConfig = require('../postcss.config.cjs')
