@@ -11,7 +11,9 @@ import { Popup } from '@/components/Popup'
 import { Icon } from '@/components/Icon'
 import { getRemoteConfig } from '@/features/remoteConfig/api.ts'
 import type { RemoteConfigResponse } from '@/features/remoteConfig/types.ts'
+import { getCurrentUserStatistics } from '@/features/user/api.ts'
 import { copyTextToClipboard } from '@/shared/clipboard/copyTextToClipboard.ts'
+import { formatAmount } from '@/shared/formatters/formatAmount.ts'
 import {
     REFERRAL_INVITE_PLACEHOLDER,
     buildReferralInviteLink,
@@ -105,6 +107,7 @@ export function SidebarMenu({
     const walletAddress = useDappStore((state) => state.walletAddress)
     const isReferralBound = useUserStore((state) => state.isReferralBound)
     const [remoteConfig, setRemoteConfig] = useState<RemoteConfigResponse>({})
+    const [totalTeamKpiText, setTotalTeamKpiText] = useState('0.00')
     const inviteLink = isReferralBound
         ? buildReferralInviteLink(walletAddress)
         : REFERRAL_INVITE_PLACEHOLDER
@@ -129,7 +132,22 @@ export function SidebarMenu({
             }
         }
 
+        async function loadTotalTeamKpi() {
+            try {
+                const statistics = await getCurrentUserStatistics()
+
+                if (isCurrent) {
+                    setTotalTeamKpiText(formatAmount(statistics.total_team_kpi))
+                }
+            } catch {
+                if (isCurrent) {
+                    setTotalTeamKpiText('0.00')
+                }
+            }
+        }
+
         void loadRemoteConfig()
+        void loadTotalTeamKpi()
 
         return () => {
             isCurrent = false
@@ -183,7 +201,16 @@ export function SidebarMenu({
                     <Icon name="cross" className="size-40 opc-6" onClick={onClose} />
                 </div>
 
-                <section className="app-sidebar-invite mt-70">
+                <section className="app-sidebar-kpi mt-30">
+                    <div className="app-sidebar-kpi__value size-40 bold-7 tc word-break">
+                        {totalTeamKpiText}
+                    </div>
+                    <div className="app-sidebar-kpi__label size-24 opc-5 mt-12">
+                        {t('布道值(USDT)')}
+                    </div>
+                </section>
+
+                <section className="app-sidebar-invite mt-30">
                     <div className="size-28 bold-6">{t('邀请链接')}</div>
                     <div className="app-sidebar-invite__box flex items-center mt-30">
                         <div className="app-sidebar-invite__value flex-1 size-24 opc-6 word-ellipsis-1">

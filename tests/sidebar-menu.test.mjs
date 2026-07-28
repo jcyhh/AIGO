@@ -82,6 +82,23 @@ test('sidebar menu renders the project invite link copy area', () => {
     assert.doesNotMatch(sidebarSource, /0xalifuiewhgouerg564vbfd8sv69aa45/)
 })
 
+test('sidebar menu displays the total team KPI as the evangelism value', () => {
+    assert.match(sidebarSource, /import \{ getCurrentUserStatistics \} from '@\/features\/user\/api\.ts'/)
+    assert.match(sidebarSource, /import \{ formatAmount \} from '@\/shared\/formatters\/formatAmount\.ts'/)
+    assert.match(sidebarSource, /const \[totalTeamKpiText, setTotalTeamKpiText\] = useState\('0\.00'\)/)
+    assert.match(sidebarSource, /getCurrentUserStatistics\(\)/)
+    assert.match(sidebarSource, /formatAmount\(statistics\.total_team_kpi\)/)
+    assert.match(sidebarSource, /setTotalTeamKpiText\(formatAmount\(statistics\.total_team_kpi\)\)/)
+    assert.match(sidebarSource, /setTotalTeamKpiText\('0\.00'\)/)
+    assert.match(sidebarSource, /app-sidebar-kpi mt-30/)
+    assert.match(sidebarSource, /\{totalTeamKpiText\}/)
+    assert.match(sidebarSource, /\{t\('布道值\(USDT\)'\)\}/)
+    assert.match(sidebarSource, /app-sidebar-invite mt-30/)
+    assert.doesNotMatch(sidebarSource, /团队业绩/)
+    assert.match(layoutStyles, /\.app-sidebar-kpi\s*\{[\s\S]*height:\s*153px[\s\S]*border-radius:\s*21px/)
+    assert.match(layoutStyles, /&__value[\s\S]*color:\s*#76E6FF/)
+})
+
 test('sidebar menu renders services as a figma-matched grid', () => {
     assert.match(sidebarSource, /app-menu__grid/)
     assert.match(sidebarSource, /app-menu__item/)

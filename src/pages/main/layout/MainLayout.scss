@@ -22,6 +22,20 @@
     border-radius: 40px 0 0 40px;
     padding: 50px 40px;
 }
+
+.app-sidebar-kpi{
+    height: 153px;
+    padding: 30px;
+    background: #092E5A;
+    border: 2px solid #3760F9;
+    border-radius: 21px;
+
+    &__value{
+        width: 252px;
+        color: #76E6FF;
+    }
+}
+
 .app-sidebar-invite{
     &__box{
         height: 72px;
