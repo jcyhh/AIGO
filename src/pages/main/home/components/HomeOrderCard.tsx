@@ -32,7 +32,7 @@ export function HomeOrderCard(props: HomeOrderCardProps) {
                 <div className="size-40 bold-6 ml-10">{order.amountText}</div>
             </div>
 
-            <div className="home-page__order-progress mt-20">
+            <div className="home-page__order-progress mt-40">
                 <div className="home-page__order-progress-copy flex items-center flex-wrap gap-10 word-break size-24">
                     <span className="opc-5">
                         {t('进度({{multiple}}倍)', { multiple: order.progressMultipleText })}

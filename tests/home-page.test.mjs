@@ -126,7 +126,7 @@ test('home page delegates data orchestration and card rendering to focused modul
     assert.match(orderCard, /export function HomeOrderCard/)
     assert.match(orderCard, /className="home-page__order-meta flex-between items-center flex-wrap gap-10 size-24 opc-5"/)
     assert.match(orderCard, /className="home-page__order-amount flex items-center word-break mt-20"/)
-    assert.match(orderCard, /className="home-page__order-progress-copy flex items-center flex-wrap gap-10 word-break size-24"[\s\S]*<ProgressBar/)
+    assert.match(orderCard, /className="home-page__order-progress mt-40"[\s\S]*className="home-page__order-progress-copy flex items-center flex-wrap gap-10 word-break size-24"[\s\S]*<ProgressBar/)
     assert.match(orderCard, /<ProgressBar[\s\S]*currentValue=\{order\.progressCurrentValue\}[\s\S]*totalValue=\{order\.progressTotalValue\}/)
     assert.match(orderCard, /\{order\.status === 'active' \? \([\s\S]*home-page__order-line[\s\S]*t\('可领取'\)[\s\S]*\) : null\}/)
     assert.match(orderCard, /order\.claimableLoading \? \(/)
