@@ -41,7 +41,7 @@ export function HomeOrderCard(props: HomeOrderCardProps) {
                         <Icon name="loading" className="size-24 blue" ariaLabel={t('订单进度加载中')} />
                     ) : (
                         <>
-                            <span>{order.progressCurrentText}</span>
+                            <span className='blue'>{order.progressCurrentText}</span>
                             <span className="opc-5">
                                 /{order.progressTotalText}{HOME_TOKEN_SYMBOL}
                             </span>
