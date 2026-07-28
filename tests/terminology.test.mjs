@@ -33,3 +33,11 @@ test('first-party UI source uses the unified extraction term', async () => {
 
     assert.deepEqual(matches.filter(Boolean), [])
 })
+
+test('project terminology keeps reward claims distinct from Token withdrawals', async () => {
+    const agentRules = await readFile('AGENTS.md', 'utf8')
+
+    assert.match(agentRules, /withdrawal\/redeem actions, use `提取`/)
+    assert.match(agentRules, /订单、静态与动态收益领取使用 `领取`/)
+    assert.doesNotMatch(agentRules, /Token 取回\/领取类动作统一使用 `提取`/)
+})

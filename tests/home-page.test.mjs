@@ -46,6 +46,8 @@ test('home page delegates data orchestration and card rendering to focused modul
     assert.match(page, /useHomeScreenData\(\{[\s\S]*activeOrderStatus,[\s\S]*walletAddress,[\s\S]*refreshEnabled: !homeDepositSubmitting && !homeOrderClaimSubmitting && !homeDynamicRewardClaimSubmitting,[\s\S]*\}\)/)
     assert.match(page, /const homeOrderStatusTabs = HOME_ORDER_STATUS_LIST\.map\(\(status\) =>/)
     assert.match(page, /<ContractLoading show=\{homeDepositSubmitting \|\| homeOrderClaimSubmitting \|\| homeDynamicRewardClaimSubmitting\} \/>/)
+    assert.equal((page.match(/message=\{t\('确认要领取吗？'\)\}/g) ?? []).length, 3)
+    assert.doesNotMatch(page, /确认要提取吗？/)
     assert.match(page, /<div className="home-page__bg vw-100" aria-hidden="true">[\s\S]*<div className="home-page__bg-track">[\s\S]*<img src=\{bg\} className="home-page__bg-image" alt="" \/>[\s\S]*<img src=\{bg\} className="home-page__bg-image" alt="" \/>[\s\S]*<\/div>[\s\S]*<\/div>/)
     assert.doesNotMatch(page, /home-page__bg[\s\S]*animate__fadeInDown/)
     assert.match(page, /<HomeCooperationCard[\s\S]*quotaProgress=\{homeQuotaProgress\}[\s\S]*depositMinimum=\{homeDepositMinimum\}[\s\S]*depositMaximum=\{homeDepositMaximum\}[\s\S]*depositAmountText=\{homeDepositAmountText\}[\s\S]*usdtBalanceText=\{usdtBalanceText\}[\s\S]*onSubmitDeposit=\{handleSubmitHomeDeposit\}/)

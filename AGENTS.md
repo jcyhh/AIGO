@@ -190,8 +190,8 @@ When a successful contract write is followed by a refresh of chain-indexed API d
 Keep project-facing copy consistent with the confirmed business glossary.
 面向项目用户的文案必须遵循已确认的业务术语表。
 
-For AIGO token withdrawal/redeem actions, use `提取`.
-AIGO 中 Token 取回/领取类动作统一使用 `提取`。
+For AIGO token withdrawal/redeem actions, use `提取`; use `领取` for order, static and dynamic reward claims.
+AIGO 中原文为“提现”的 Token 取回类动作统一使用 `提取`；订单、静态与动态收益领取使用 `领取`。
 
 Do not use `提现` for the same action in UI source, even if an old design draft or exported Figma node contains that wording.
 同一动作不要在 UI 源码中使用 `提现`，即使旧设计稿或导出的 Figma 节点里出现该词也要按项目术语修正。

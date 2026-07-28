@@ -407,7 +407,7 @@ export function HomePage() {
 
             <ConfirmPopup
                 show={showDynamicRewardClaimPopup}
-                message={t('确认要提取吗？')}
+                message={t('确认要领取吗？')}
                 submitting={homeDynamicRewardClaimSubmitting}
                 onClose={handleCloseDynamicRewardClaimPopup}
                 onConfirm={() => void handleConfirmDynamicRewardClaim()}
@@ -415,7 +415,7 @@ export function HomePage() {
 
             <ConfirmPopup
                 show={homeOrderClaiming !== undefined}
-                message={t('确认要提取吗？')}
+                message={t('确认要领取吗？')}
                 submitting={homeOrderClaimSubmitting}
                 onClose={handleCloseHomeOrderClaim}
                 onConfirm={() => void handleConfirmHomeOrderClaim()}
@@ -423,7 +423,7 @@ export function HomePage() {
 
             <ConfirmPopup
                 show={showStaticRewardClaimPopup}
-                message={t('确认要提取吗？')}
+                message={t('确认要领取吗？')}
                 submitting={homeOrderClaimSubmitting}
                 onClose={handleCloseStaticRewardClaimPopup}
                 onConfirm={() => void handleConfirmStaticRewardClaim()}
