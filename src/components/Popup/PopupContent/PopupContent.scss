@@ -27,17 +27,6 @@
             var(--app-popup-gradient-card-border),
             2px
         );
-
-        isolation: isolate;
-
-        &::before {
-            z-index: 0;
-        }
-
-        > * {
-            position: relative;
-            z-index: 1;
-        }
     }
 
     &__header {

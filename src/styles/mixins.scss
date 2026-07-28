@@ -7,21 +7,7 @@
     border-radius: $radius;
     border: $borderWidth solid transparent;
     position: relative;
-    background: $bg padding-box;
-
-    &::before {
-        content: '';
-        position: absolute;
-        inset: -$borderWidth;
-        padding: $borderWidth;
-        border-radius: inherit;
-        background: $border;
-        pointer-events: none;
-        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        mask-composite: exclude;
-        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        -webkit-mask-composite: xor;
-    }
+    background: $bg padding-box, $border border-box;
 }
 
 @mixin gradient-word(
