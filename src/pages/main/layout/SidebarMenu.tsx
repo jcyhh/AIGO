@@ -9,6 +9,7 @@ import { NavLink } from 'react-router'
 import { Popup } from '@/components/Popup'
 
 import { Icon } from '@/components/Icon'
+import { message } from '@/components/Message'
 import { getRemoteConfig } from '@/features/remoteConfig/api.ts'
 import type { RemoteConfigResponse } from '@/features/remoteConfig/types.ts'
 import { getCurrentUserStatistics } from '@/features/user/api.ts'
@@ -162,10 +163,14 @@ export function SidebarMenu({
         onClose()
     }
 
-    function handleCopyInviteLink() {
+    async function handleCopyInviteLink() {
         if (!canCopyInviteLink) return
 
-        void copyTextToClipboard(inviteLink)
+        const copied = await copyTextToClipboard(inviteLink)
+
+        if (copied) {
+            message.success(t('复制成功'))
+        }
     }
 
     function getSidebarExternalLinkHref(
@@ -222,7 +227,7 @@ export function SidebarMenu({
                             className="app-sidebar-invite__copy flex-center size-36 white"
                             aria-label={t('复制邀请链接')}
                             disabled={!canCopyInviteLink}
-                            onClick={handleCopyInviteLink}
+                            onClick={() => void handleCopyInviteLink()}
                         >
                             <img src={copyImg} className="img-32" />
                         </button>

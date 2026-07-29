@@ -64,6 +64,7 @@ test('sidebar menu reuses the shared first-level layout menu items', () => {
 
 test('sidebar menu renders the project invite link copy area', () => {
     assert.match(sidebarSource, /copyTextToClipboard/)
+    assert.match(sidebarSource, /import \{ message \} from '@\/components\/Message'/)
     assert.match(sidebarSource, /import copyImg from '@\/assets\/layout\/sidebar\/copy\.png'/)
     assert.match(sidebarSource, /useDappStore/)
     assert.match(sidebarSource, /useUserStore/)
@@ -75,7 +76,8 @@ test('sidebar menu renders the project invite link copy area', () => {
     assert.match(sidebarSource, /\{inviteLink\}/)
     assert.match(sidebarSource, /function handleCopyInviteLink\(\)/)
     assert.match(sidebarSource, /if \(!canCopyInviteLink\) return/)
-    assert.match(sidebarSource, /void copyTextToClipboard\(inviteLink\)/)
+    assert.match(sidebarSource, /const copied = await copyTextToClipboard\(inviteLink\)/)
+    assert.match(sidebarSource, /if \(copied\) \{[\s\S]*message\.success\(t\('复制成功'\)\)/)
     assert.match(sidebarSource, /aria-label=\{t\('复制邀请链接'\)\}/)
     assert.match(sidebarSource, /src=\{copyImg\}/)
     assert.match(sidebarSource, /className="img-32"/)
