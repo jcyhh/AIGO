@@ -5,6 +5,7 @@ import {
 } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router'
+import type { Address } from 'viem'
 
 import { Popup } from '@/components/Popup'
 
@@ -12,7 +13,8 @@ import { Icon } from '@/components/Icon'
 import { message } from '@/components/Message'
 import { getRemoteConfig } from '@/features/remoteConfig/api.ts'
 import type { RemoteConfigResponse } from '@/features/remoteConfig/types.ts'
-import { getCurrentUserStatistics } from '@/features/user/api.ts'
+import { readAigoProjectTotalTeamPerformanceUsdt } from '@/services/contracts'
+import { formatDappAmountUnits } from '@/services/dapp/units.ts'
 import { copyTextToClipboard } from '@/shared/clipboard/copyTextToClipboard.ts'
 import { formatAmount } from '@/shared/formatters/formatAmount.ts'
 import {
@@ -134,11 +136,18 @@ export function SidebarMenu({
         }
 
         async function loadTotalTeamKpi() {
+            if (!walletAddress) {
+                setTotalTeamKpiText('0.00')
+                return
+            }
+
             try {
-                const statistics = await getCurrentUserStatistics()
+                const totalTeamPerformanceUsdt = await readAigoProjectTotalTeamPerformanceUsdt(
+                    walletAddress as Address,
+                )
 
                 if (isCurrent) {
-                    setTotalTeamKpiText(formatAmount(statistics.total_team_kpi))
+                    setTotalTeamKpiText(formatAmount(formatDappAmountUnits(totalTeamPerformanceUsdt)))
                 }
             } catch {
                 if (isCurrent) {
@@ -153,7 +162,7 @@ export function SidebarMenu({
         return () => {
             isCurrent = false
         }
-    }, [show])
+    }, [show, walletAddress])
 
     function handleMenuLinkClick() {
         onClose()
