@@ -115,7 +115,6 @@ export function SidebarMenu({
     const [totalTeamKpiText, setTotalTeamKpiText] = useState('0.00')
     const loadedTeamKpiWalletRef = useRef<Address | undefined>(undefined)
     const userLevelIcon = userLevel?.icon?.trim() ?? ''
-    const userLevelName = userLevel?.name?.trim() ?? ''
     const inviteLink = isReferralBound
         ? buildReferralInviteLink(walletAddress)
         : REFERRAL_INVITE_PLACEHOLDER
@@ -234,14 +233,9 @@ export function SidebarMenu({
                             {t('布道值(USDT)')}
                         </div>
                     </div>
-                    {userLevelIcon || userLevelName ? (
+                    {userLevelIcon ? (
                         <div className="app-sidebar-kpi__level flex flex-column items-center justify-center flex-none ml-20">
-                            {userLevelIcon ? (
-                                <img src={userLevelIcon} className="img-52" alt="" />
-                            ) : null}
-                            {userLevelName ? (
-                                <div className="size-24 bold-6 mt-8 tc">{userLevelName}</div>
-                            ) : null}
+                            <img src={userLevelIcon} className="img-72" alt="" />
                         </div>
                     ) : null}
                 </section>
