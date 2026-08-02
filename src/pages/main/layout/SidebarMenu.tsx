@@ -235,12 +235,12 @@ export function SidebarMenu({
                         </div>
                     </div>
                     {userLevelIcon || userLevelName ? (
-                        <div className="app-sidebar-kpi__level flex items-center flex-none ml-20">
+                        <div className="app-sidebar-kpi__level flex flex-column items-center justify-center flex-none ml-20">
                             {userLevelIcon ? (
                                 <img src={userLevelIcon} className="img-52" alt="" />
                             ) : null}
                             {userLevelName ? (
-                                <div className="size-24 bold-6 ml-12">{userLevelName}</div>
+                                <div className="size-24 bold-6 mt-8 tc">{userLevelName}</div>
                             ) : null}
                         </div>
                     ) : null}

@@ -114,6 +114,8 @@ test('sidebar menu reuses the header user level icon and name in the evangelism 
     assert.match(sidebarSource, /app-sidebar-kpi__level/)
     assert.match(sidebarSource, /src=\{userLevelIcon\}/)
     assert.match(sidebarSource, /\{userLevelName\}/)
+    assert.match(sidebarSource, /className="app-sidebar-kpi__level flex flex-column items-center justify-center flex-none ml-20"/)
+    assert.match(sidebarSource, /className="size-24 bold-6 mt-8 tc"/)
 })
 
 test('sidebar menu does not reload the evangelism value when it reopens for the same wallet', () => {
