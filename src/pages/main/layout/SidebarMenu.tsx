@@ -13,9 +13,8 @@ import { Icon } from '@/components/Icon'
 import { message } from '@/components/Message'
 import { getRemoteConfig } from '@/features/remoteConfig/api.ts'
 import type { RemoteConfigResponse } from '@/features/remoteConfig/types.ts'
-import { getCurrentUser } from '@/features/user/api.ts'
 import { readAigoProjectTotalTeamPerformanceUsdt } from '@/services/contracts'
-import { formatDappAmountUnits } from '@/services/dapp/units.ts'
+import { formatDappAmountUnits, parseDappAmountUnits } from '@/services/dapp/units.ts'
 import { copyTextToClipboard } from '@/shared/clipboard/copyTextToClipboard.ts'
 import { formatAmount } from '@/shared/formatters/formatAmount.ts'
 import {
@@ -30,6 +29,16 @@ import sidebarGamefiIcon from '@/assets/layout/sidebar/sidebar-gamefi.png'
 import sidebarAirdropIcon from '@/assets/layout/sidebar/sidebar-airdrop.png'
 import sidebarMallIcon from '@/assets/layout/sidebar/sidebar-mall.png'
 import sidebarPoolIcon from '@/assets/layout/sidebar/sidebar-pool.png'
+import sidebarLevel0Icon from '@/assets/layout/sidebar/lv0.png'
+import sidebarLevel1Icon from '@/assets/layout/sidebar/lv1.png'
+import sidebarLevel2Icon from '@/assets/layout/sidebar/lv2.png'
+import sidebarLevel3Icon from '@/assets/layout/sidebar/lv3.png'
+import sidebarLevel4Icon from '@/assets/layout/sidebar/lv4.png'
+import sidebarLevel5Icon from '@/assets/layout/sidebar/lv5.png'
+import sidebarLevel6Icon from '@/assets/layout/sidebar/lv6.png'
+import sidebarLevel7Icon from '@/assets/layout/sidebar/lv7.png'
+import sidebarLevel8Icon from '@/assets/layout/sidebar/lv8.png'
+import sidebarLevel9Icon from '@/assets/layout/sidebar/lv9.png'
 
 import { MAIN_PAGE_ITEMS } from '../config.ts'
 import { AppBrand } from './AppBrand/AppBrand.tsx'
@@ -86,6 +95,24 @@ const SIDEBAR_EXTERNAL_LINK_ITEMS: readonly SidebarExternalLinkItem[] = [
     },
 ]
 
+const SIDEBAR_LEVEL_ICON_THRESHOLDS: readonly (readonly [bigint, string])[] = [
+    [parseDappAmountUnits('40000000'), sidebarLevel9Icon],
+    [parseDappAmountUnits('20000000'), sidebarLevel8Icon],
+    [parseDappAmountUnits('8000000'), sidebarLevel7Icon],
+    [parseDappAmountUnits('3000000'), sidebarLevel6Icon],
+    [parseDappAmountUnits('1000000'), sidebarLevel5Icon],
+    [parseDappAmountUnits('500000'), sidebarLevel4Icon],
+    [parseDappAmountUnits('100000'), sidebarLevel3Icon],
+    [parseDappAmountUnits('50000'), sidebarLevel2Icon],
+    [parseDappAmountUnits('10000'), sidebarLevel1Icon],
+]
+
+function getSidebarLevelIcon(totalTeamPerformanceUsdt: bigint): string {
+    return SIDEBAR_LEVEL_ICON_THRESHOLDS.find(
+        ([threshold]) => totalTeamPerformanceUsdt >= threshold,
+    )?.[1] ?? sidebarLevel0Icon
+}
+
 function getExternalLinkClassName(linkHref: string | undefined): string {
     return [
         'app-menu__item',
@@ -110,10 +137,9 @@ export function SidebarMenu({
     const { t } = useTranslation()
     const walletAddress = useDappStore((state) => state.walletAddress)
     const isReferralBound = useUserStore((state) => state.isReferralBound)
-    const userLevel = useUserStore((state) => state.userProfile?.level)
     const [remoteConfig, setRemoteConfig] = useState<RemoteConfigResponse>({})
     const [totalTeamKpiText, setTotalTeamKpiText] = useState('0.00')
-    const userLevelIcon = userLevel?.icon?.trim() ?? ''
+    const [totalTeamKpiLevelIcon, setTotalTeamKpiLevelIcon] = useState(sidebarLevel0Icon)
     const inviteLink = isReferralBound
         ? buildReferralInviteLink(walletAddress)
         : REFERRAL_INVITE_PLACEHOLDER
@@ -138,17 +164,10 @@ export function SidebarMenu({
             }
         }
 
-        async function loadCurrentUser() {
-            try {
-                await getCurrentUser()
-            } catch {
-                // The sidebar can still show its currently cached user profile.
-            }
-        }
-
         async function loadTotalTeamKpi() {
             if (!walletAddress) {
                 setTotalTeamKpiText('0.00')
+                setTotalTeamKpiLevelIcon(sidebarLevel0Icon)
                 return
             }
 
@@ -159,16 +178,17 @@ export function SidebarMenu({
 
                 if (isCurrent) {
                     setTotalTeamKpiText(formatAmount(formatDappAmountUnits(totalTeamPerformanceUsdt)))
+                    setTotalTeamKpiLevelIcon(getSidebarLevelIcon(totalTeamPerformanceUsdt))
                 }
             } catch {
                 if (isCurrent) {
                     setTotalTeamKpiText('0.00')
+                    setTotalTeamKpiLevelIcon(sidebarLevel0Icon)
                 }
             }
         }
 
         void loadRemoteConfig()
-        void loadCurrentUser()
         void loadTotalTeamKpi()
 
         return () => {
@@ -236,11 +256,9 @@ export function SidebarMenu({
                             {t('布道值(USDT)')}
                         </div>
                     </div>
-                    {userLevelIcon ? (
-                        <div className="app-sidebar-kpi__level flex flex-column items-center justify-center flex-none ml-20">
-                            <img src={userLevelIcon} className="img-72" alt="" />
-                        </div>
-                    ) : null}
+                    <div className="app-sidebar-kpi__level flex flex-column items-center justify-center flex-none ml-20">
+                        <img src={totalTeamKpiLevelIcon} className="img-72" alt="" />
+                    </div>
                 </section>
 
                 <section className="app-sidebar-invite mt-30">

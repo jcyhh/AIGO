@@ -87,7 +87,7 @@ test('sidebar menu renders the project invite link copy area', () => {
 test('sidebar menu displays the total team KPI as the evangelism value', () => {
     assert.match(sidebarSource, /import type \{ Address \} from 'viem'/)
     assert.match(sidebarSource, /import \{ readAigoProjectTotalTeamPerformanceUsdt \} from '@\/services\/contracts'/)
-    assert.match(sidebarSource, /import \{ formatDappAmountUnits \} from '@\/services\/dapp\/units\.ts'/)
+    assert.match(sidebarSource, /import \{ formatDappAmountUnits, parseDappAmountUnits \} from '@\/services\/dapp\/units\.ts'/)
     assert.match(sidebarSource, /import \{ formatAmount \} from '@\/shared\/formatters\/formatAmount\.ts'/)
     assert.match(sidebarSource, /const \[totalTeamKpiText, setTotalTeamKpiText\] = useState\('0\.00'\)/)
     assert.match(sidebarSource, /if \(!walletAddress\) \{/)
@@ -107,23 +107,32 @@ test('sidebar menu displays the total team KPI as the evangelism value', () => {
     assert.match(layoutStyles, /&__value[\s\S]*color:\s*#76E6FF/)
 })
 
-test('sidebar menu shows a larger header user level icon in the evangelism card', () => {
-    assert.match(sidebarSource, /const userLevel = useUserStore\(\(state\) => state\.userProfile\?\.level\)/)
-    assert.match(sidebarSource, /const userLevelIcon = userLevel\?\.icon\?\.trim\(\) \?\? ''/)
+test('sidebar menu maps the contract evangelism value to local level icons', () => {
+    for (let level = 0; level <= 9; level += 1) {
+        assert.equal(existsSync(`src/assets/layout/sidebar/lv${level}.png`), true)
+        assert.match(sidebarSource, new RegExp(`sidebarLevel${level}Icon from '@/assets/layout/sidebar/lv${level}\\.png'`))
+    }
+
+    assert.match(sidebarSource, /import \{ formatDappAmountUnits, parseDappAmountUnits \} from '@\/services\/dapp\/units\.ts'/)
+    assert.match(sidebarSource, /function getSidebarLevelIcon\(totalTeamPerformanceUsdt: bigint\): string/)
+    assert.match(sidebarSource, /parseDappAmountUnits\('40000000'\)/)
+    assert.match(sidebarSource, /parseDappAmountUnits\('20000000'\)/)
+    assert.match(sidebarSource, /parseDappAmountUnits\('10000'\)/)
+    assert.match(sidebarSource, /\?\.\[1\] \?\? sidebarLevel0Icon/)
+    assert.match(sidebarSource, /const \[totalTeamKpiLevelIcon, setTotalTeamKpiLevelIcon\] = useState\(sidebarLevel0Icon\)/)
+    assert.match(sidebarSource, /setTotalTeamKpiLevelIcon\(getSidebarLevelIcon\(totalTeamPerformanceUsdt\)\)/)
+    assert.match(sidebarSource, /src=\{totalTeamKpiLevelIcon\}/)
     assert.match(sidebarSource, /app-sidebar-kpi__level/)
-    assert.match(sidebarSource, /src=\{userLevelIcon\}/)
     assert.match(sidebarSource, /className="app-sidebar-kpi__level flex flex-column items-center justify-center flex-none ml-20"/)
     assert.match(sidebarSource, /className="img-72"/)
-    assert.doesNotMatch(sidebarSource, /userLevelName/)
+    assert.doesNotMatch(sidebarSource, /userProfile/)
+    assert.doesNotMatch(sidebarSource, /userLevelIcon/)
 })
 
-test('sidebar menu refreshes the evangelism value and user profile whenever it opens', () => {
-    assert.match(sidebarSource, /import \{ getCurrentUser \} from '@\/features\/user\/api\.ts'/)
-    assert.match(sidebarSource, /async function loadCurrentUser\(\)/)
-    assert.match(sidebarSource, /await getCurrentUser\(\)/)
-    assert.match(sidebarSource, /void loadCurrentUser\(\)/)
+test('sidebar menu refreshes the evangelism value whenever it opens', () => {
     assert.match(sidebarSource, /void loadTotalTeamKpi\(\)/)
     assert.doesNotMatch(sidebarSource, /loadedTeamKpiWalletRef/)
+    assert.doesNotMatch(sidebarSource, /getCurrentUser/)
 })
 
 test('sidebar menu renders services as a figma-matched grid', () => {

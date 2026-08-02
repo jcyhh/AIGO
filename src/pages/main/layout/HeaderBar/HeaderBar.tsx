@@ -35,7 +35,6 @@ export function HeaderBar({
     const backgroundRef = useRef<HTMLDivElement>(null)
     const walletAddress = useDappStore((state) => state.walletAddress)
     const isAuthenticated = useUserStore((state) => state.isAuthenticated)
-    const userLevelIcon = useUserStore((state) => state.userProfile?.level?.icon?.trim() ?? '')
     const showWalletAddress =
         APP_CONFIG.loginMode !== APP_LOGIN_MODE.account &&
         isAuthenticated &&
@@ -92,13 +91,6 @@ export function HeaderBar({
                 <div className="flex justify-between items-center header rel">
                     <AppBrand />
                     <div className="flex items-center">
-                        {userLevelIcon ? (
-                            <img
-                                src={userLevelIcon}
-                                className="app-header-bar__level-icon img-52 mr-20"
-                                alt=""
-                            />
-                        ) : null}
                         <LanguageSwitch />
                         {showWalletAddress ? (
                             <div className="auto-btn size-24 bold-6 ml-20">
