@@ -1,5 +1,6 @@
 import {
     useEffect,
+    useRef,
     useState,
     type MouseEvent,
 } from 'react'
@@ -111,6 +112,7 @@ export function SidebarMenu({
     const isReferralBound = useUserStore((state) => state.isReferralBound)
     const [remoteConfig, setRemoteConfig] = useState<RemoteConfigResponse>({})
     const [totalTeamKpiText, setTotalTeamKpiText] = useState('0.00')
+    const loadedTeamKpiWalletRef = useRef<Address | undefined>(undefined)
     const inviteLink = isReferralBound
         ? buildReferralInviteLink(walletAddress)
         : REFERRAL_INVITE_PLACEHOLDER
@@ -141,6 +143,10 @@ export function SidebarMenu({
                 return
             }
 
+            if (loadedTeamKpiWalletRef.current === walletAddress) {
+                return
+            }
+
             try {
                 const totalTeamPerformanceUsdt = await readAigoProjectTotalTeamPerformanceUsdt(
                     walletAddress as Address,
@@ -148,6 +154,7 @@ export function SidebarMenu({
 
                 if (isCurrent) {
                     setTotalTeamKpiText(formatAmount(formatDappAmountUnits(totalTeamPerformanceUsdt)))
+                    loadedTeamKpiWalletRef.current = walletAddress
                 }
             } catch {
                 if (isCurrent) {

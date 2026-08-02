@@ -107,6 +107,13 @@ test('sidebar menu displays the total team KPI as the evangelism value', () => {
     assert.match(layoutStyles, /&__value[\s\S]*color:\s*#76E6FF/)
 })
 
+test('sidebar menu does not reload the evangelism value when it reopens for the same wallet', () => {
+    assert.match(sidebarSource, /useRef/)
+    assert.match(sidebarSource, /const loadedTeamKpiWalletRef = useRef<Address \| undefined>\(undefined\)/)
+    assert.match(sidebarSource, /if \(loadedTeamKpiWalletRef\.current === walletAddress\) \{\s*return\s*\}/)
+    assert.match(sidebarSource, /loadedTeamKpiWalletRef\.current = walletAddress/)
+})
+
 test('sidebar menu renders services as a figma-matched grid', () => {
     assert.match(sidebarSource, /app-menu__grid/)
     assert.match(sidebarSource, /app-menu__item/)
