@@ -113,7 +113,7 @@ export function SidebarMenu({
     const userLevel = useUserStore((state) => state.userProfile?.level)
     const [remoteConfig, setRemoteConfig] = useState<RemoteConfigResponse>({})
     const [totalTeamKpiText, setTotalTeamKpiText] = useState('0.00')
-    const loadedTeamKpiWalletRef = useRef<Address | undefined>(undefined)
+    const loadedTeamKpiWalletRef = useRef<string | undefined>(undefined)
     const userLevelIcon = userLevel?.icon?.trim() ?? ''
     const inviteLink = isReferralBound
         ? buildReferralInviteLink(walletAddress)

@@ -119,7 +119,7 @@ test('sidebar menu shows a larger header user level icon in the evangelism card'
 
 test('sidebar menu does not reload the evangelism value when it reopens for the same wallet', () => {
     assert.match(sidebarSource, /useRef/)
-    assert.match(sidebarSource, /const loadedTeamKpiWalletRef = useRef<Address \| undefined>\(undefined\)/)
+    assert.match(sidebarSource, /const loadedTeamKpiWalletRef = useRef<string \| undefined>\(undefined\)/)
     assert.match(sidebarSource, /if \(loadedTeamKpiWalletRef\.current === walletAddress\) \{\s*return\s*\}/)
     assert.match(sidebarSource, /loadedTeamKpiWalletRef\.current = walletAddress/)
 })
