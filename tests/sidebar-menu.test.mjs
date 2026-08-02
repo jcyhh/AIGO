@@ -117,11 +117,13 @@ test('sidebar menu shows a larger header user level icon in the evangelism card'
     assert.doesNotMatch(sidebarSource, /userLevelName/)
 })
 
-test('sidebar menu does not reload the evangelism value when it reopens for the same wallet', () => {
-    assert.match(sidebarSource, /useRef/)
-    assert.match(sidebarSource, /const loadedTeamKpiWalletRef = useRef<string \| undefined>\(undefined\)/)
-    assert.match(sidebarSource, /if \(loadedTeamKpiWalletRef\.current === walletAddress\) \{\s*return\s*\}/)
-    assert.match(sidebarSource, /loadedTeamKpiWalletRef\.current = walletAddress/)
+test('sidebar menu refreshes the evangelism value and user profile whenever it opens', () => {
+    assert.match(sidebarSource, /import \{ getCurrentUser \} from '@\/features\/user\/api\.ts'/)
+    assert.match(sidebarSource, /async function loadCurrentUser\(\)/)
+    assert.match(sidebarSource, /await getCurrentUser\(\)/)
+    assert.match(sidebarSource, /void loadCurrentUser\(\)/)
+    assert.match(sidebarSource, /void loadTotalTeamKpi\(\)/)
+    assert.doesNotMatch(sidebarSource, /loadedTeamKpiWalletRef/)
 })
 
 test('sidebar menu renders services as a figma-matched grid', () => {

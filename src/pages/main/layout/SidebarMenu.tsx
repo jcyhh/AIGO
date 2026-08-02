@@ -1,6 +1,5 @@
 import {
     useEffect,
-    useRef,
     useState,
     type MouseEvent,
 } from 'react'
@@ -14,6 +13,7 @@ import { Icon } from '@/components/Icon'
 import { message } from '@/components/Message'
 import { getRemoteConfig } from '@/features/remoteConfig/api.ts'
 import type { RemoteConfigResponse } from '@/features/remoteConfig/types.ts'
+import { getCurrentUser } from '@/features/user/api.ts'
 import { readAigoProjectTotalTeamPerformanceUsdt } from '@/services/contracts'
 import { formatDappAmountUnits } from '@/services/dapp/units.ts'
 import { copyTextToClipboard } from '@/shared/clipboard/copyTextToClipboard.ts'
@@ -113,7 +113,6 @@ export function SidebarMenu({
     const userLevel = useUserStore((state) => state.userProfile?.level)
     const [remoteConfig, setRemoteConfig] = useState<RemoteConfigResponse>({})
     const [totalTeamKpiText, setTotalTeamKpiText] = useState('0.00')
-    const loadedTeamKpiWalletRef = useRef<string | undefined>(undefined)
     const userLevelIcon = userLevel?.icon?.trim() ?? ''
     const inviteLink = isReferralBound
         ? buildReferralInviteLink(walletAddress)
@@ -139,13 +138,17 @@ export function SidebarMenu({
             }
         }
 
+        async function loadCurrentUser() {
+            try {
+                await getCurrentUser()
+            } catch {
+                // The sidebar can still show its currently cached user profile.
+            }
+        }
+
         async function loadTotalTeamKpi() {
             if (!walletAddress) {
                 setTotalTeamKpiText('0.00')
-                return
-            }
-
-            if (loadedTeamKpiWalletRef.current === walletAddress) {
                 return
             }
 
@@ -156,7 +159,6 @@ export function SidebarMenu({
 
                 if (isCurrent) {
                     setTotalTeamKpiText(formatAmount(formatDappAmountUnits(totalTeamPerformanceUsdt)))
-                    loadedTeamKpiWalletRef.current = walletAddress
                 }
             } catch {
                 if (isCurrent) {
@@ -166,6 +168,7 @@ export function SidebarMenu({
         }
 
         void loadRemoteConfig()
+        void loadCurrentUser()
         void loadTotalTeamKpi()
 
         return () => {
