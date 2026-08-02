@@ -107,6 +107,15 @@ test('sidebar menu displays the total team KPI as the evangelism value', () => {
     assert.match(layoutStyles, /&__value[\s\S]*color:\s*#76E6FF/)
 })
 
+test('sidebar menu reuses the header user level icon and name in the evangelism card', () => {
+    assert.match(sidebarSource, /const userLevel = useUserStore\(\(state\) => state\.userProfile\?\.level\)/)
+    assert.match(sidebarSource, /const userLevelIcon = userLevel\?\.icon\?\.trim\(\) \?\? ''/)
+    assert.match(sidebarSource, /const userLevelName = userLevel\?\.name\?\.trim\(\) \?\? ''/)
+    assert.match(sidebarSource, /app-sidebar-kpi__level/)
+    assert.match(sidebarSource, /src=\{userLevelIcon\}/)
+    assert.match(sidebarSource, /\{userLevelName\}/)
+})
+
 test('sidebar menu does not reload the evangelism value when it reopens for the same wallet', () => {
     assert.match(sidebarSource, /useRef/)
     assert.match(sidebarSource, /const loadedTeamKpiWalletRef = useRef<Address \| undefined>\(undefined\)/)

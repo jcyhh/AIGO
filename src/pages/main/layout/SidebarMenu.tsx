@@ -110,9 +110,12 @@ export function SidebarMenu({
     const { t } = useTranslation()
     const walletAddress = useDappStore((state) => state.walletAddress)
     const isReferralBound = useUserStore((state) => state.isReferralBound)
+    const userLevel = useUserStore((state) => state.userProfile?.level)
     const [remoteConfig, setRemoteConfig] = useState<RemoteConfigResponse>({})
     const [totalTeamKpiText, setTotalTeamKpiText] = useState('0.00')
     const loadedTeamKpiWalletRef = useRef<Address | undefined>(undefined)
+    const userLevelIcon = userLevel?.icon?.trim() ?? ''
+    const userLevelName = userLevel?.name?.trim() ?? ''
     const inviteLink = isReferralBound
         ? buildReferralInviteLink(walletAddress)
         : REFERRAL_INVITE_PLACEHOLDER
@@ -222,13 +225,25 @@ export function SidebarMenu({
                     <Icon name="cross" className="size-40 opc-6" onClick={onClose} />
                 </div>
 
-                <section className="app-sidebar-kpi mt-30">
-                    <div className="app-sidebar-kpi__value size-40 bold-7 word-break">
-                        {totalTeamKpiText}
+                <section className="app-sidebar-kpi mt-30 flex justify-between">
+                    <div className="flex-1">
+                        <div className="app-sidebar-kpi__value size-40 bold-7 word-break">
+                            {totalTeamKpiText}
+                        </div>
+                        <div className="app-sidebar-kpi__label size-24 opc-5 mt-12">
+                            {t('布道值(USDT)')}
+                        </div>
                     </div>
-                    <div className="app-sidebar-kpi__label size-24 opc-5 mt-12">
-                        {t('布道值(USDT)')}
-                    </div>
+                    {userLevelIcon || userLevelName ? (
+                        <div className="app-sidebar-kpi__level flex items-center flex-none ml-20">
+                            {userLevelIcon ? (
+                                <img src={userLevelIcon} className="img-52" alt="" />
+                            ) : null}
+                            {userLevelName ? (
+                                <div className="size-24 bold-6 ml-12">{userLevelName}</div>
+                            ) : null}
+                        </div>
+                    ) : null}
                 </section>
 
                 <section className="app-sidebar-invite mt-30">
